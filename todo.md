@@ -7,8 +7,6 @@ Goal: Play chess against the computer with variable strength using only the side
 
 ## Planned
 
-### Draw board
-
 ### Draw pieces
 
 ### Select piece
@@ -20,18 +18,25 @@ Goal: Play chess against the computer with variable strength using only the side
 
 ## Ideas
 
+### Randomly choose color
+
 ### Save state on quit
 
 ### Set different strengths
 
 ### Undo
 
+### Refresh screen automatically
+
 
 ## Completed
 
-### Add Chess Activity to the Menu
+### Draw board
 
-*Completed: 2026-08-04*
+- Full width
+- Dark and light grey
+
+### Add Chess Activity to the Menu
 
 - Add Menu entry
 - Open Activity

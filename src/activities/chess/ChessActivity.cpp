@@ -35,6 +35,7 @@ void ChessActivity::render(RenderLock&&) {
   const auto& metrics = UITheme::getInstance().getMetrics();
   const auto pageWidth = renderer.getScreenWidth();
   const auto pageHeight = renderer.getScreenHeight();
+  const int CELL = pageWidth / BOARD;
 
   renderer.clearScreen();
   GUI.drawHeader(renderer, Rect{0, metrics.topPadding, pageWidth, metrics.headerHeight}, "Chess");
@@ -45,17 +46,26 @@ void ChessActivity::render(RenderLock&&) {
   const int contentBot = pageHeight - metrics.buttonHintsHeight - 4;
   const int boardY = contentTop + (contentBot - contentTop - boardSize - 24) / 2;
 
-  // Board border
-  renderer.drawRect(boardX - 1, boardY - 1, boardSize + 2, boardSize + 2);
+  // Draw board squares and pieces
+  for (int r = 0; r < BOARD; r++) {
+    for (int c = 0; c < BOARD; c++) {
+      int cx = boardX + c * CELL;
+      int cy = boardY + r * CELL;
+      bool darkSquare = (r + c) % 2 == 1;
 
-  // Status line below board
-  int statusY = boardY + boardSize + 4;
+      if (darkSquare) {
+        renderer.fillRectDither(cx, cy, CELL, CELL, Color::DarkGray);
+      } else {
+        renderer.fillRectDither(cx, cy, CELL, CELL, Color::LightGray);
+      }
+    }
+  }
 
   // Button hints
   const char* btn1 = "Quit";
-  const char* btn2 = "One";
-  const char* btn3 = "Two";
-  const char* btn4 = "Three";
+  const char* btn2 = "";
+  const char* btn3 = "";
+  const char* btn4 = "";
 
   const auto labels = mappedInput.mapLabels(btn1, btn2, btn3, btn4);
   GUI.drawButtonHints(renderer, labels.btn1, labels.btn2, labels.btn3, labels.btn4);

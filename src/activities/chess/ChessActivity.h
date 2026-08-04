@@ -6,7 +6,6 @@
 
 class ChessActivity final : public Activity {
   static constexpr int BOARD = 8;
-  static constexpr int CELL = 48;
 
   GfxRenderer::Orientation savedOrientation = GfxRenderer::Orientation::Portrait;
 
