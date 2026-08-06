@@ -3,8 +3,8 @@
 #include <array>
 #include <vector>
 
-#include "TinyChess/board/board.h";
-#include "TinyChess/engine/engine.h";
+#include "TinyChess/board/board.h"
+#include "TinyChess/engine/engine.h"
 
 struct Move {
   int from = -1;
@@ -42,7 +42,7 @@ class ChessEngine {
   std::array<int, 64> pieces();
   std::vector<int> myPieces(int side);
   int sideToMove();
-  Move lastMove();
   std::vector<Move> legalMoves(int square);
-  void makeMove(Move move);
+  Move makeMove(Move move);
+  int eval();
 };

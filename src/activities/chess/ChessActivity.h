@@ -15,9 +15,11 @@ class ChessActivity final : public Activity {
   static const int SELECT_PIECE = 0;
   static const int SELECT_MOVE = 1;
 
-  int state = 0;
+  int state = SELECT_PIECE;
   int selected = 0;
-  int selected_piece = SELECT_PIECE;
+  int selected_piece = 0;
+
+  Move response = Move{-1, -1, 0};
 
  public:
   explicit ChessActivity(GfxRenderer& renderer, MappedInputManager& mappedInput)

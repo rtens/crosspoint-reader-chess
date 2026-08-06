@@ -30,41 +30,35 @@ void ChessActivity::onExit() {
 void ChessActivity::loop() {
   if (mappedInput.wasReleased(MappedInputManager::Button::Back)) {
     onGoHome();
-    return;
-  }
 
-  bool changed = false;
-
-  if (mappedInput.wasReleased(MappedInputManager::Button::Down)) {
-    changed = true;
+  } else if (mappedInput.wasReleased(MappedInputManager::Button::Down)) {
     selected++;
-  }
+    requestUpdate();
 
-  if (mappedInput.wasReleased(MappedInputManager::Button::Up)) {
-    changed = true;
-
+  } else if (mappedInput.wasReleased(MappedInputManager::Button::Up)) {
     if (state == SELECT_PIECE) {
       state = SELECT_MOVE;
       selected_piece = selected;
       selected = 0;
 
     } else if (state == SELECT_MOVE) {
-      state = SELECT_PIECE;
-
       if (selected == 0) {
+        state = SELECT_PIECE;
         selected = selected_piece;
 
       } else {
         auto mine = engine.myPieces(engine.sideToMove());
         int piece_square = mine[selected_piece];
         auto legals = engine.legalMoves(piece_square);
-        engine.makeMove(legals[selected - 1]);
+        response = engine.makeMove(legals[selected - 1]);
+
+        state = SELECT_PIECE;
         selected = 0;
       }
     }
-  }
 
-  if (changed) requestUpdate();
+    requestUpdate();
+  }
 }
 
 void ChessActivity::render(RenderLock&&) {
@@ -83,6 +77,8 @@ void ChessActivity::render(RenderLock&&) {
   const int boardY = contentTop + (contentBot - contentTop - boardSize - 24) / 2;
   const int right = boardX + boardSize;
   const int bottom = boardY + boardSize;
+
+  renderer.drawCenteredText(SMALL_FONT_ID, boardY - 20, std::to_string(engine.eval()).c_str());
 
   auto pieces = engine.pieces();
   auto mine = engine.myPieces(engine.sideToMove());
@@ -120,9 +116,6 @@ void ChessActivity::render(RenderLock&&) {
     int offY = boardY + off;
     int offX = boardX + off;
 
-    renderer.drawLine(boardX, offY, right, offY);
-    renderer.drawLine(offX, boardY, offX, bottom);
-
     for (int c = 0; c < BOARD; c++) {
       i++;
       int cx = boardX + c * CELL;
@@ -144,6 +137,10 @@ void ChessActivity::render(RenderLock&&) {
 
       if (piece_square == i) {
         renderer.drawRoundedRect(cx, cy, CELL, CELL, 3, CELL / 2, true);
+      }
+
+      if (response.from == i || response.to == i) {
+        renderer.drawRect(cx, cy, CELL, CELL, 2, true);
       }
 
       int piece = pieces[i];
@@ -195,15 +192,21 @@ void ChessActivity::render(RenderLock&&) {
         renderer.drawText(NOTOSANS_16_FONT_ID, px, py, pieceStr, true);
       }
     }
+
+    renderer.drawLine(boardX, offY, right, offY);
+    renderer.drawLine(offX, boardY, offX, bottom);
   }
 
   renderer.drawLine(boardX, bottom, right, bottom);
   renderer.drawLine(right, boardY, right, bottom);
 
   // Status line
-  int statusY = boardY + boardSize + 4;
-  const char* turn = engine.sideToMove() == ChessEngine::WHITE_SIDE ? "White's turn" : "Black's turn";
-  renderer.drawCenteredText(SMALL_FONT_ID, statusY, turn);
+  int statusY = boardY + boardSize + 6;
+  if (state == SELECT_PIECE) {
+    renderer.drawCenteredText(SMALL_FONT_ID, statusY, "Select a piece");
+  } else if (state == SELECT_MOVE) {
+    renderer.drawCenteredText(SMALL_FONT_ID, statusY, "Select the target square");
+  }
 
   // Button hints
   const char* btn1 = "Quit";

@@ -7,17 +7,14 @@ Goal: Play chess against the computer with variable strength using only the side
 
 ## Planned
 
-### Apply engine move
-
-- Tell engine to make move
-- Wait for move to be made
-- Print new board when done
-- Back to selecting own piece
-
 ### End game
 
 - Print who won
 - No more moves
+
+### Fix crashes
+
+- Crashes after a couple of moves
 
 
 ## Ideas
@@ -42,8 +39,21 @@ Goal: Play chess against the computer with variable strength using only the side
 
 ### Menu item icon
 
+### Print "Thinking..."
+
 
 ## Completed
+
+### Avoid illegal moves
+
+- Check legality of each generated move
+
+### Apply engine move
+
+- Tell engine to make move
+- Print new board when done
+- Back to selecting own piece
+- Highlight from and to squares of last move
 
 ### Make move
 

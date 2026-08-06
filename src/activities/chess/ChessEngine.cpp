@@ -26,27 +26,50 @@ std::vector<int> ChessEngine::myPieces(int side) {
 
 int ChessEngine::sideToMove() { return board.color; }
 
-Move ChessEngine::lastMove() { return Move{}; }
-
 std::vector<Move> ChessEngine::legalMoves(int square) {
-  uint64_t pawnAttacks, rookAttacks, knightAttacks, bishopAttacks, queenAttacks, kingAttacks;
+  uint64_t attackers = board.getAttackers();
   uint16_t moves[218];
+  board.resetAttackers();
+  uint64_t pawnAttacks, rookAttacks, knightAttacks, bishopAttacks, queenAttacks, kingAttacks;
   int total =
       board.generateMoves(moves, pawnAttacks, rookAttacks, knightAttacks, bishopAttacks, queenAttacks, kingAttacks);
 
   std::vector<Move> legals = {};
   for (int i = 0; i < total; i++) {
-    uint16_t move = moves[i];
-    uint8_t from = (move & 0b0000000000111111);
-    uint8_t to = ((move >> 6) & 0b0000000000111111);
+    board.setAttackers(pawnAttacks, rookAttacks, knightAttacks, bishopAttacks, queenAttacks, kingAttacks);
+    uint64_t isolated = board.getKing();
+    bool check = (attackers & isolated) != 0;
+    board.makeMove(moves[i]);
+    uint64_t a = board.getAttackers();
 
-    if (from == square) {
-      legals.push_back(Move{from, to, move});
+    if (board.isLegal(attackers, check)) {
+      uint16_t move = moves[i];
+      uint8_t from = (move & 0b0000000000111111);
+      uint8_t to = ((move >> 6) & 0b0000000000111111);
+
+      if (from == square) {
+        legals.push_back(Move{from, to, move});
+      }
     }
+    board.unmakeMove(moves[i]);
   }
 
   sort(legals.begin(), legals.end(), [](Move a, Move b) { return a.to < b.to; });
   return legals;
 }
 
-void ChessEngine::makeMove(Move move) { board.makeMove(move.bin); }
+Move ChessEngine::makeMove(Move move) {
+  board.makeMove(move.bin);
+  return Move{-1, -1, 0};
+
+  int sc = 0;
+  int nodes = 0;
+  uint16_t response = engine.runSearchID(100, sc, nodes);
+  board.makeMove(response);
+
+  uint8_t from = (response & 0b0000000000111111);
+  uint8_t to = ((response >> 6) & 0b0000000000111111);
+  return Move{from, to, response};
+}
+
+int ChessEngine::eval() { return engine.getEval(); }
