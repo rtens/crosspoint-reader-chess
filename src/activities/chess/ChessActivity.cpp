@@ -36,25 +36,32 @@ void ChessActivity::loop() {
   bool changed = false;
 
   if (mappedInput.wasReleased(MappedInputManager::Button::Down)) {
-    selected++;
     changed = true;
+    selected++;
   }
 
   if (mappedInput.wasReleased(MappedInputManager::Button::Up)) {
+    changed = true;
+
     if (state == SELECT_PIECE) {
       state = SELECT_MOVE;
       selected_piece = selected;
       selected = 0;
+
     } else if (state == SELECT_MOVE) {
-      selected %= 64;
+      state = SELECT_PIECE;
+
       if (selected == 0) {
-        state = SELECT_PIECE;
         selected = selected_piece;
+
       } else {
-        // Make the move
+        auto mine = engine.myPieces(engine.sideToMove());
+        int piece_square = mine[selected_piece];
+        auto legals = engine.legalMoves(piece_square);
+        engine.makeMove(legals[selected - 1]);
+        selected = 0;
       }
     }
-    changed = true;
   }
 
   if (changed) requestUpdate();
@@ -78,7 +85,7 @@ void ChessActivity::render(RenderLock&&) {
   const int bottom = boardY + boardSize;
 
   auto pieces = engine.pieces();
-  auto mine = engine.myPieces();
+  auto mine = engine.myPieces(engine.sideToMove());
 
   int selected_square = -1;
   int piece_square = -1;
@@ -90,7 +97,6 @@ void ChessActivity::render(RenderLock&&) {
   } else if (state == SELECT_MOVE) {
     piece_square = mine[selected_piece];
     auto legals = engine.legalMoves(piece_square);
-    sort(legals.begin(), legals.end(), [](Move a, Move b) { return a.to < b.to; });
 
     std::vector<Move> moves = {Move{piece_square, piece_square}};
     moves.insert(moves.end(), legals.begin(), legals.end());
@@ -193,6 +199,11 @@ void ChessActivity::render(RenderLock&&) {
 
   renderer.drawLine(boardX, bottom, right, bottom);
   renderer.drawLine(right, boardY, right, bottom);
+
+  // Status line
+  int statusY = boardY + boardSize + 4;
+  const char* turn = engine.sideToMove() == ChessEngine::WHITE_SIDE ? "White's turn" : "Black's turn";
+  renderer.drawCenteredText(SMALL_FONT_ID, statusY, turn);
 
   // Button hints
   const char* btn1 = "Quit";

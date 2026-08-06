@@ -9,6 +9,7 @@
 struct Move {
   int from = -1;
   int to = -1;
+  uint16_t bin = 0;
 };
 
 class ChessEngine {
@@ -19,6 +20,9 @@ class ChessEngine {
  public:
   explicit ChessEngine() : board(), engine(&board) {}
   virtual ~ChessEngine() = default;
+
+  static const int WHITE_SIDE = 0;
+  static const int BLACK_SIDE = !WHITE_SIDE;
 
   static const int EMPTY = 0;
   static const int WHITE_PAWN = 1;
@@ -36,7 +40,7 @@ class ChessEngine {
 
   void newGame();
   std::array<int, 64> pieces();
-  std::vector<int> myPieces();
+  std::vector<int> myPieces(int side);
   int sideToMove();
   Move lastMove();
   std::vector<Move> legalMoves(int square);
