@@ -4,10 +4,13 @@ Goal: Play chess against the computer with variable strength using only the side
 
 ## Current
 
+### Draw pieces
+
+- Query engine for board state
+- emoji pieces
+
 
 ## Planned
-
-### Draw pieces
 
 ### Select piece
 
@@ -18,6 +21,8 @@ Goal: Play chess against the computer with variable strength using only the side
 
 ## Ideas
 
+### Symbol pieces
+
 ### Randomly choose color
 
 ### Save state on quit
@@ -27,6 +32,10 @@ Goal: Play chess against the computer with variable strength using only the side
 ### Undo
 
 ### Refresh screen automatically
+
+### Export PTN of game
+
+### Download Puzzles
 
 
 ## Completed
