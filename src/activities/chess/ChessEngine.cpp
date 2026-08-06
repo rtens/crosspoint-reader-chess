@@ -1,13 +1,12 @@
 #include "ChessEngine.h"
 
+#include <array>
 #include <cstdlib>
 #include <vector>
 
-std::vector<int> ChessEngine::board() {
-  return {-6, -5, -4, -3, -2, -4, -5, -6, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0,
-          0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 0, 0, 0, 0, 0,
-          0,  0,  0,  0,  1,  1,  1,  1,  1,  1,  1,  1,  6,  5,  4,  3,  2, 4, 5, 6};
-}
+void ChessEngine::newGame() { board.readFEN("position startpos"); }
+
+std::array<int, 64> ChessEngine::pieces() { return board.all_pieces(); }
 
 int ChessEngine::sideToMove() { return 0; }
 

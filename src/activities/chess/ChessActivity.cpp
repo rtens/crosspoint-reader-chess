@@ -13,6 +13,8 @@
 void ChessActivity::onEnter() {
   Activity::onEnter();
 
+  engine.newGame();
+
   savedOrientation = renderer.getOrientation();
   renderer.setOrientation(GfxRenderer::Orientation::Portrait);
   requestUpdate();
@@ -48,10 +50,10 @@ void ChessActivity::render(RenderLock&&) {
   const int right = boardX + boardSize;
   const int bottom = boardY + boardSize;
 
-  auto board = engine.board();
+  auto pieces = engine.pieces();
 
   // Draw board squares and pieces
-  int i = 0;
+  int i = -1;
   for (int r = 0; r < BOARD; r++) {
     int off = CELL * r;
     int offY = boardY + off;
@@ -75,7 +77,7 @@ void ChessActivity::render(RenderLock&&) {
         }
       }
 
-      int piece = board[i];
+      int piece = pieces[i];
       if (piece != 0) {
         const char* pieceStr = "";
         switch (piece) {

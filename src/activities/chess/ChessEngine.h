@@ -1,6 +1,10 @@
 #pragma once
 
+#include <array>
 #include <vector>
+
+#include "TinyChess/board/board.h";
+#include "TinyChess/engine/engine.h";
 
 struct Move {
   int fromSquare = 0;
@@ -8,10 +12,15 @@ struct Move {
 };
 
 class ChessEngine {
+ private:
+  Board board;
+  Engine engine;
+
  public:
-  explicit ChessEngine() {}
+  explicit ChessEngine() : board(), engine(&board) {}
   virtual ~ChessEngine() = default;
 
+  static const int EMPTY = 0;
   static const int WHITE_PAWN = 1;
   static const int WHITE_KING = 2;
   static const int WHITE_QUEEN = 3;
@@ -25,7 +34,8 @@ class ChessEngine {
   static const int BLACK_KNIGHT = -5;
   static const int BLACK_ROOK = -6;
 
-  std::vector<int> board();
+  void newGame();
+  std::array<int, 64> pieces();
   int sideToMove();
   Move lastMove();
   std::vector<Move> legalMoves(int square);
