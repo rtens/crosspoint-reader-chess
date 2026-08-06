@@ -58,13 +58,12 @@ std::vector<Move> ChessEngine::legalMoves(int square) {
   return legals;
 }
 
-Move ChessEngine::makeMove(Move move) {
-  board.makeMove(move.bin);
-  return Move{-1, -1, 0};
+void ChessEngine::makeMove(Move move) { board.makeMove(move.bin); }
 
+Move ChessEngine::respond() {
   int sc = 0;
   int nodes = 0;
-  uint16_t response = engine.runSearchID(100, sc, nodes);
+  uint16_t response = engine.runSearchID(500, sc, nodes);
   board.makeMove(response);
 
   uint8_t from = (response & 0b0000000000111111);

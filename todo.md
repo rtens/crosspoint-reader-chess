@@ -4,6 +4,10 @@ Goal: Play chess against the computer with variable strength using only the side
 
 ## Current
 
+### Fix crashes
+
+- Crashes at or after engine move
+
 
 ## Planned
 
@@ -11,10 +15,6 @@ Goal: Play chess against the computer with variable strength using only the side
 
 - Print who won
 - No more moves
-
-### Fix crashes
-
-- Crashes after a couple of moves
 
 
 ## Ideas
@@ -43,6 +43,10 @@ Goal: Play chess against the computer with variable strength using only the side
 
 
 ## Completed
+
+### Switch between AI and OTB mode
+
+- Toggle using Confirm button
 
 ### Avoid illegal moves
 

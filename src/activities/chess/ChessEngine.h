@@ -43,6 +43,7 @@ class ChessEngine {
   std::vector<int> myPieces(int side);
   int sideToMove();
   std::vector<Move> legalMoves(int square);
-  Move makeMove(Move move);
+  void makeMove(Move move);
+  Move respond();
   int eval();
 };

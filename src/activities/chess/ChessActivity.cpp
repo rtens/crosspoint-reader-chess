@@ -31,6 +31,14 @@ void ChessActivity::loop() {
   if (mappedInput.wasReleased(MappedInputManager::Button::Back)) {
     onGoHome();
 
+  } else if (mappedInput.wasReleased(MappedInputManager::Button::Confirm)) {
+    if (mode == COMPUTER) {
+      mode = OTB;
+    } else {
+      mode = COMPUTER;
+    }
+    requestUpdate();
+
   } else if (mappedInput.wasReleased(MappedInputManager::Button::Down)) {
     selected++;
     requestUpdate();
@@ -50,13 +58,23 @@ void ChessActivity::loop() {
         auto mine = engine.myPieces(engine.sideToMove());
         int piece_square = mine[selected_piece];
         auto legals = engine.legalMoves(piece_square);
-        response = engine.makeMove(legals[selected - 1]);
+        engine.makeMove(legals[selected - 1]);
 
-        state = SELECT_PIECE;
         selected = 0;
+        if (mode == COMPUTER) {
+          state = THINKING;
+        } else {
+          state = SELECT_PIECE;
+        }
       }
     }
 
+    requestUpdate();
+
+  } else if (state == THINKING) {
+    response = engine.respond();
+
+    state = SELECT_PIECE;
     requestUpdate();
   }
 }
@@ -78,7 +96,7 @@ void ChessActivity::render(RenderLock&&) {
   const int right = boardX + boardSize;
   const int bottom = boardY + boardSize;
 
-  renderer.drawCenteredText(SMALL_FONT_ID, boardY - 20, std::to_string(engine.eval()).c_str());
+  renderer.drawCenteredText(SMALL_FONT_ID, boardY - 25, std::to_string(engine.eval()).c_str());
 
   auto pieces = engine.pieces();
   auto mine = engine.myPieces(engine.sideToMove());
@@ -206,15 +224,23 @@ void ChessActivity::render(RenderLock&&) {
     renderer.drawCenteredText(SMALL_FONT_ID, statusY, "Select a piece");
   } else if (state == SELECT_MOVE) {
     renderer.drawCenteredText(SMALL_FONT_ID, statusY, "Select the target square");
+  } else if (state == THINKING) {
+    renderer.drawCenteredText(SMALL_FONT_ID, statusY, "Thinking...");
   }
 
   // Button hints
   const char* btn1 = "Quit";
-  const char* btn2 = "";
+  char* btn2 = "";
+  if (mode == OTB) {
+    btn2 = "OTB";
+  } else {
+    btn2 = "AI";
+  }
   const char* btn3 = "";
   const char* btn4 = "";
 
   const auto labels = mappedInput.mapLabels(btn1, btn2, btn3, btn4);
   GUI.drawButtonHints(renderer, labels.btn1, labels.btn2, labels.btn3, labels.btn4);
+
   renderer.displayBuffer();
 }

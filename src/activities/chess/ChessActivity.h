@@ -14,8 +14,13 @@ class ChessActivity final : public Activity {
 
   static const int SELECT_PIECE = 0;
   static const int SELECT_MOVE = 1;
+  static const int THINKING = 2;
+
+  static const int COMPUTER = 0;
+  static const int OTB = 1;
 
   int state = SELECT_PIECE;
+  int mode = COMPUTER;
   int selected = 0;
   int selected_piece = 0;
 
