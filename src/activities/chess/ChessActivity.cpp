@@ -48,11 +48,10 @@ void ChessActivity::render(RenderLock&&) {
   const int right = boardX + boardSize;
   const int bottom = boardY + boardSize;
 
-  int board[8][8] = {{-6, -5, -4, -3, -2, -4, -5, -6}, {-1, -1, -1, -1, -1, -1, -1, -1}, {0, 0, 0, 0, 0, 0, 0, 0},
-                     {0, 0, 0, 0, 0, 0, 0, 0},         {0, 0, 0, 0, 0, 0, 0, 0},         {0, 0, 0, 0, 0, 0, 0, 0},
-                     {1, 1, 1, 1, 1, 1, 1, 1},         {6, 5, 4, 3, 2, 4, 5, 6}};
+  auto board = engine.board();
 
   // Draw board squares and pieces
+  int i = 0;
   for (int r = 0; r < BOARD; r++) {
     int off = CELL * r;
     int offY = boardY + off;
@@ -62,6 +61,7 @@ void ChessActivity::render(RenderLock&&) {
     renderer.drawLine(offX, boardY, offX, bottom);
 
     for (int c = 0; c < BOARD; c++) {
+      i++;
       int cx = boardX + c * CELL;
       int cy = boardY + r * CELL;
       bool darkSquare = (r + c) % 2 == 1;
@@ -75,44 +75,44 @@ void ChessActivity::render(RenderLock&&) {
         }
       }
 
-      int piece = board[r][c];
+      int piece = board[i];
       if (piece != 0) {
         const char* pieceStr = "";
         switch (piece) {
-          case 1:  // White Pawn
+          case ChessEngine::WHITE_PAWN:
             pieceStr = "P";
             break;
-          case 2:  // White King
+          case ChessEngine::WHITE_KING:
             pieceStr = "K";
             break;
-          case 3:  // White Queen
+          case ChessEngine::WHITE_QUEEN:
             pieceStr = "Q";
             break;
-          case 4:  // White Bishop
+          case ChessEngine::WHITE_BISHOP:
             pieceStr = "B";
             break;
-          case 5:  // White Knight
+          case ChessEngine::WHITE_KNIGHT:
             pieceStr = "N";
             break;
-          case 6:  // White Rook
+          case ChessEngine::WHITE_ROOK:
             pieceStr = "R";
             break;
-          case -1:  // Black Pawn
+          case ChessEngine::BLACK_PAWN:
             pieceStr = "p";
             break;
-          case -2:  // Black King
+          case ChessEngine::BLACK_KING:
             pieceStr = "k";
             break;
-          case -3:  // Black Queen
+          case ChessEngine::BLACK_QUEEN:
             pieceStr = "q";
             break;
-          case -4:  // Black Bishop
+          case ChessEngine::BLACK_BISHOP:
             pieceStr = "b";
             break;
-          case -5:  // Black Knight
+          case ChessEngine::BLACK_KNIGHT:
             pieceStr = "n";
             break;
-          case -6:  // Black Rook
+          case ChessEngine::BLACK_ROOK:
             pieceStr = "r";
             break;
         }

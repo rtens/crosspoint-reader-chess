@@ -6,8 +6,9 @@ Goal: Play chess against the computer with variable strength using only the side
 
 ### Draw pieces
 
-- Query engine for board state
-- emoji pieces
+- [X] Use Letter pieces
+- [X] Query engine for board state
+- [ ] Use TinyChess as engine
 
 
 ## Planned
