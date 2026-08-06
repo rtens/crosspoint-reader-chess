@@ -4,16 +4,17 @@ Goal: Play chess against the computer with variable strength using only the side
 
 ## Current
 
-
-## Planned
-
 ### Make move
 
-- Show legal moves
-- Move selector with right button
-- Restrict selector to legal target squares
-- Make move with left button
-- Cancel by selecting piece again
+- [X] Show legal moves
+- [X] Move selector with right button
+- [X] Restrict selector to legal target squares
+- [X] Sort legal moves by to square
+- [X] Cancel by selecting piece again
+- [ ] Make move with left button
+
+
+## Planned
 
 ### Apply engine move
 

@@ -7,8 +7,8 @@
 #include "TinyChess/engine/engine.h";
 
 struct Move {
-  int fromSquare = 0;
-  int toSquare = 0;
+  int from = -1;
+  int to = -1;
 };
 
 class ChessEngine {

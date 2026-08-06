@@ -4,6 +4,7 @@
 #include <GfxRenderer.h>
 #include <I18n.h>
 
+#include <algorithm>
 #include <cstdlib>
 #include <cstring>
 
@@ -46,10 +47,12 @@ void ChessActivity::loop() {
       selected = 0;
     } else if (state == SELECT_MOVE) {
       selected %= 64;
-      // if (selected == 0) {
-      state = SELECT_PIECE;
-      selected = selected_piece;
-      // }
+      if (selected == 0) {
+        state = SELECT_PIECE;
+        selected = selected_piece;
+      } else {
+        // Make the move
+      }
     }
     changed = true;
   }
@@ -83,10 +86,25 @@ void ChessActivity::render(RenderLock&&) {
   if (state == SELECT_PIECE) {
     selected %= mine.size();
     selected_square = mine[selected];
+
   } else if (state == SELECT_MOVE) {
-    selected %= 64;
-    selected_square = selected;
     piece_square = mine[selected_piece];
+    auto legals = engine.legalMoves(piece_square);
+    sort(legals.begin(), legals.end(), [](Move a, Move b) { return a.to < b.to; });
+
+    std::vector<Move> moves = {Move{piece_square, piece_square}};
+    moves.insert(moves.end(), legals.begin(), legals.end());
+
+    selected %= moves.size();
+    selected_square = moves[selected].to;
+
+    for (int m = 0; m < legals.size(); m++) {
+      int to = legals[m].to;
+      int size = CELL / 5;
+      int cx = boardX + (to % 8) * CELL + (CELL - size) / 2;
+      int cy = boardY + (to / 8) * CELL + (CELL - size) / 2;
+      renderer.fillRoundedRect(cx, cy, size, size, size / 2, Color::Black);
+    }
   }
 
   // Draw board squares and pieces

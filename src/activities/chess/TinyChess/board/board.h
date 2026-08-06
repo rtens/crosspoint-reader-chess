@@ -3,9 +3,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include <array>
 #include <string>
 #include <vector>
-#include <array>
 
 #include "squares.h"
 
@@ -76,8 +76,8 @@ class Board {
   void printBoard();
   std::array<int, 64> all_pieces();
 
-      // Move generator
-      void makeMove(uint16_t a);
+  // Move generator
+  void makeMove(uint16_t a);
   void unmakeMove(uint16_t a);
 
   bool color;  // 0 == White
