@@ -32,11 +32,13 @@ Goal: Play chess against the computer with variable strength using only the side
 
 ## Ideas
 
-### Symbol pieces
+### Use symbols as pieces
 
 ### Randomly choose color
 
-### Save state on quit
+### Save and resume state on quite and sleep
+
+### Start new game
 
 ### Set different strengths
 
@@ -46,7 +48,9 @@ Goal: Play chess against the computer with variable strength using only the side
 
 ### Export PTN of game
 
-### Download Puzzles
+### Download and solve Puzzles
+
+### Menu item icon
 
 
 ## Completed
