@@ -7,13 +7,6 @@ Goal: Play chess against the computer with variable strength using only the side
 
 ## Planned
 
-### Select piece
-
-- Move selector with right button
-- Restrict selector to own pieces
-- Select piece with left button
-- Unselect by selecting piece again
-
 ### Make move
 
 - Show legal moves
@@ -54,6 +47,13 @@ Goal: Play chess against the computer with variable strength using only the side
 
 
 ## Completed
+
+### Select piece
+
+- Move selector with right button
+- Restrict selector to own pieces
+- Select piece with left button
+- Unselect again with left button
 
 ### Draw pieces
 

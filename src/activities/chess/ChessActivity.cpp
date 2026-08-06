@@ -31,6 +31,30 @@ void ChessActivity::loop() {
     onGoHome();
     return;
   }
+
+  bool changed = false;
+
+  if (mappedInput.wasReleased(MappedInputManager::Button::Down)) {
+    selected++;
+    changed = true;
+  }
+
+  if (mappedInput.wasReleased(MappedInputManager::Button::Up)) {
+    if (state == SELECT_PIECE) {
+      state = SELECT_MOVE;
+      selected_piece = selected;
+      selected = 0;
+    } else if (state == SELECT_MOVE) {
+      selected %= 64;
+      // if (selected == 0) {
+      state = SELECT_PIECE;
+      selected = selected_piece;
+      // }
+    }
+    changed = true;
+  }
+
+  if (changed) requestUpdate();
 }
 
 void ChessActivity::render(RenderLock&&) {
@@ -51,6 +75,19 @@ void ChessActivity::render(RenderLock&&) {
   const int bottom = boardY + boardSize;
 
   auto pieces = engine.pieces();
+  auto mine = engine.myPieces();
+
+  int selected_square = -1;
+  int piece_square = -1;
+
+  if (state == SELECT_PIECE) {
+    selected %= mine.size();
+    selected_square = mine[selected];
+  } else if (state == SELECT_MOVE) {
+    selected %= 64;
+    selected_square = selected;
+    piece_square = mine[selected_piece];
+  }
 
   // Draw board squares and pieces
   int i = -1;
@@ -75,6 +112,14 @@ void ChessActivity::render(RenderLock&&) {
         for (int d = CELL / 5; d < CELL - 1; d += CELL / 5) {
           renderer.drawLine(cx + CELL - d, cy + CELL, cx + CELL, cy + CELL - d);
         }
+      }
+
+      if (selected_square == i) {
+        renderer.drawRect(cx, cy, CELL, CELL, 3, true);
+      }
+
+      if (piece_square == i) {
+        renderer.drawRoundedRect(cx, cy, CELL, CELL, 3, CELL / 2, true);
       }
 
       int piece = pieces[i];

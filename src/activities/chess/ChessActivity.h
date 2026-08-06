@@ -12,6 +12,13 @@ class ChessActivity final : public Activity {
   GfxRenderer::Orientation savedOrientation = GfxRenderer::Orientation::Portrait;
   ChessEngine engine;
 
+  static const int SELECT_PIECE = 0;
+  static const int SELECT_MOVE = 1;
+
+  int state = 0;
+  int selected = 0;
+  int selected_piece = SELECT_PIECE;
+
  public:
   explicit ChessActivity(GfxRenderer& renderer, MappedInputManager& mappedInput)
       : Activity("Chess", renderer, mappedInput), engine() {}

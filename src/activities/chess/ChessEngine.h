@@ -36,6 +36,7 @@ class ChessEngine {
 
   void newGame();
   std::array<int, 64> pieces();
+  std::vector<int> myPieces();
   int sideToMove();
   Move lastMove();
   std::vector<Move> legalMoves(int square);
