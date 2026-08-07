@@ -78,6 +78,8 @@ std::vector<Move> ChessEngine::legalMoves(int square) {
 
 void ChessEngine::makeMove(Move move) { board.makeMove(move.bin); }
 
+void ChessEngine::undoLastMove() {}
+
 Move ChessEngine::respond() {
   int sc = 0;
   int nodes = 0;
@@ -89,8 +91,6 @@ Move ChessEngine::respond() {
   uint8_t to = ((response >> 6) & 0b0000000000111111);
   return Move{from, to, response};
 }
-
-int ChessEngine::eval() { return engine.getEval(); }
 
 int ChessEngine::gameOver() { return -1; }
 

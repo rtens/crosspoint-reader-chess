@@ -47,8 +47,8 @@ class ChessEngine {
   int sideToMove();
   std::vector<Move> legalMoves(int square);
   void makeMove(Move move);
+  void undoLastMove();
   Move respond();
-  int eval();
   int gameOver();
   std::string printMove(Move move);
   std::string printPosition();
