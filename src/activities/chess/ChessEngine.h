@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Logging.h>
+
 #include <array>
 #include <vector>
 
@@ -22,7 +24,8 @@ class ChessEngine {
   virtual ~ChessEngine() = default;
 
   static const int WHITE_SIDE = 0;
-  static const int BLACK_SIDE = !WHITE_SIDE;
+  static const int BLACK_SIDE = 1;
+  static const int NEITHER_SIDE = -1;
 
   static const int EMPTY = 0;
   static const int WHITE_PAWN = 1;
@@ -38,7 +41,7 @@ class ChessEngine {
   static const int BLACK_KNIGHT = -5;
   static const int BLACK_ROOK = -6;
 
-  void newGame();
+  void newGame(std::string position = "position startpos");
   std::array<int, 64> pieces();
   std::vector<int> myPieces(int side);
   int sideToMove();
@@ -46,4 +49,7 @@ class ChessEngine {
   void makeMove(Move move);
   Move respond();
   int eval();
+  int gameOver();
+  std::string printMove(Move move);
+  std::string printPosition();
 };

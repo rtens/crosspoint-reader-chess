@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include <iostream>
+#include <sstream>
 
 void moveSet(uint16_t& move, uint8_t from, uint8_t to, bool doublePawnPush, bool enPassant, uint8_t promo, bool capture,
              uint8_t castle) {
@@ -205,4 +206,91 @@ void Board::printBoard() {
     printf("\n");
   }
   printf("\n");
+}
+
+std::string Board::printFEN() {
+  std::stringstream ss;
+
+  int empties = 0;
+  for (uint8_t y = 0; y < 8; y++) {
+    for (uint8_t x = 0; x < 8; x++) {
+      const uint8_t index = y * 8 + x;
+      std::string symbol = "";
+
+      if (bitRead(this->whitePawns, index)) {
+        symbol = "P";
+      } else if (bitRead(this->blackPawns, index)) {
+        symbol = "p";
+      } else if (bitRead(this->whiteKnights, index)) {
+        symbol = "N";
+      } else if (bitRead(this->blackKnights, index)) {
+        symbol = "n";
+      } else if (bitRead(this->whiteBishops, index)) {
+        symbol = "B";
+      } else if (bitRead(this->blackBishops, index)) {
+        symbol = "b";
+      } else if (bitRead(this->whiteRooks, index)) {
+        symbol = "R";
+      } else if (bitRead(this->blackRooks, index)) {
+        symbol = "r";
+      } else if (bitRead(this->whiteQueens, index)) {
+        symbol = "Q";
+      } else if (bitRead(this->blackQueens, index)) {
+        symbol = "q";
+      } else if (bitRead(this->whiteKing, index)) {
+        symbol = "K";
+      } else if (bitRead(this->blackKing, index)) {
+        symbol = "k";
+      }
+
+      if (symbol == "") {
+        empties++;
+      } else {
+        if (empties > 0) {
+          ss << empties;
+          empties = 0;
+        }
+        ss << symbol;
+      }
+    }
+    if (empties > 0) {
+      ss << empties;
+      empties = 0;
+    }
+    if (y < 7) {
+      ss << "/";
+    }
+  }
+
+  if (color == 0) {
+    ss << " w ";
+  } else {
+    ss << " b ";
+  }
+
+  bool noCastle = true;
+  if (flagWhiteKingsideCastle == 1) {
+    ss << "K";
+    noCastle = false;
+  }
+  if (flagWhiteQueensideCastle == 1) {
+    ss << "Q";
+    noCastle = false;
+  }
+  if (flagBlackKingsideCastle == 1) {
+    ss << "k";
+    noCastle = false;
+  }
+  if (flagBlackQueensideCastle == 1) {
+    ss << "q";
+    noCastle = false;
+  }
+
+  if (noCastle) {
+    ss << "-";
+  }
+
+  ss << " -";
+
+  return ss.str();
 }

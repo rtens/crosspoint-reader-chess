@@ -2,19 +2,24 @@
 
 Goal: Play chess against the computer with variable strength using only the side buttons.
 
+Flash: pio run --target upload
+Debug: python scripts/debugging_monitor.py COM11
+
 ## Current
-
-### Fix crashes
-
-- Crashes at or after engine move
 
 
 ## Planned
 
 ### End game
 
+- detect game over
 - Print who won
 - No more moves
+
+### Stable engine
+
+- Current engine crashes all the time
+- Probably need to implement my own engine
 
 
 ## Ideas
@@ -22,8 +27,6 @@ Goal: Play chess against the computer with variable strength using only the side
 ### Use symbols as pieces
 
 ### Randomly choose color
-
-### Save and resume state on quite and sleep
 
 ### Start new game
 
@@ -43,6 +46,16 @@ Goal: Play chess against the computer with variable strength using only the side
 
 
 ## Completed
+
+### Resume game
+
+- save FEN after every move
+- load FEN onEnter
+- start new game with button
+
+### Promotion
+
+- Print selected move
 
 ### Switch between AI and OTB mode
 

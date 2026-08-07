@@ -11,6 +11,7 @@ class ChessActivity final : public Activity {
  private:
   GfxRenderer::Orientation savedOrientation = GfxRenderer::Orientation::Portrait;
   ChessEngine engine;
+  std::string info = "";
 
   static const int SELECT_PIECE = 0;
   static const int SELECT_MOVE = 1;
@@ -18,13 +19,22 @@ class ChessActivity final : public Activity {
 
   static const int COMPUTER = 0;
   static const int OTB = 1;
+  static const int RANDROM = 2;
 
   int state = SELECT_PIECE;
   int mode = COMPUTER;
+
   int selected = 0;
   int selected_piece = 0;
 
-  Move response = Move{-1, -1, 0};
+  std::array<int, 64> pieces;
+  std::vector<int> mine;
+  std::vector<Move> moves;
+
+  Move response = Move{};
+
+  void savePosition();
+  std::string loadPosition();
 
  public:
   explicit ChessActivity(GfxRenderer& renderer, MappedInputManager& mappedInput)

@@ -74,6 +74,7 @@ class Board {
   virtual ~Board();
 
   void printBoard();
+  std::string printFEN();
   std::array<int, 64> all_pieces();
 
   // Move generator
@@ -99,6 +100,7 @@ class Board {
   int queensCount(bool color);
 
   void printMove(uint16_t a, bool bin = false);
+  std::string moveToString(uint16_t a);
 
   uint64_t whitePawns;
   uint64_t blackPawns;

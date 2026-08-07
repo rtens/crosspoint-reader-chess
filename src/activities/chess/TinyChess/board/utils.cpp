@@ -1,5 +1,6 @@
 #include <bitset>
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -364,6 +365,25 @@ void printNumToLetter(uint8_t a) {
     std::cout << "h";
   }
 }
+void stringNumToLetter(uint8_t a, std::stringstream& ss) {
+  if (a % 8 == 0) {
+    ss << "a";
+  } else if (a % 8 == 1) {
+    ss << "b";
+  } else if (a % 8 == 2) {
+    ss << "c";
+  } else if (a % 8 == 3) {
+    ss << "d";
+  } else if (a % 8 == 4) {
+    ss << "e";
+  } else if (a % 8 == 5) {
+    ss << "f";
+  } else if (a % 8 == 6) {
+    ss << "g";
+  } else if (a % 8 == 7) {
+    ss << "h";
+  }
+}
 void pMove(uint16_t a) {
   uint8_t from = (a & 0b0000000000111111);
   uint8_t to = ((a >> 6) & 0b0000000000111111);
@@ -419,6 +439,44 @@ void Board::printMove(uint16_t a, bool bin) {
       }
     }
   }
+}
+
+std::string Board::moveToString(uint16_t a) {
+  const uint16_t flags = moveReadFlags(a);
+
+  if (a == 0) {
+    return "0000";
+  }
+
+  std::stringstream ss;
+  if (flags == FLAG_KING_CASTLE) {
+    if (color == 0)
+      ss << "e1g1";
+    else
+      ss << "e8g8";
+  } else if (flags == FLAG_QUEEN_CASTLE) {
+    if (color == 0)
+      ss << "e1c1";
+    else
+      ss << "e8c8";
+  } else {
+    uint8_t from = (a & 0b0000000000111111);
+    uint8_t to = ((a >> 6) & 0b0000000000111111);
+    stringNumToLetter(from, ss);
+    ss << (int)(((63 - from) / 8 + 1));
+    stringNumToLetter(to, ss);
+    ss << (int)((63 - to) / 8 + 1);
+    if (flags == FLAG_KNIGHT_PROMOTION || flags == FLAG_KNIGHT_PROMOTION_CAPTURE) {
+      ss << "n";
+    } else if (flags == FLAG_BISHOP_PROMOTION || flags == FLAG_BISHOP_PROMOTION_CAPTURE) {
+      ss << "b";
+    } else if (flags == FLAG_ROOK_PROMOTION || flags == FLAG_ROOK_PROMOTION_CAPTURE) {
+      ss << "r";
+    } else if (flags == FLAG_QUEEN_PROMOTION || flags == FLAG_QUEEN_PROMOTION_CAPTURE) {
+      ss << "q";
+    }
+  }
+  return ss.str();
 }
 
 uint64_t Board::bitReverse(uint64_t b) {
