@@ -3,14 +3,15 @@
 #include <cstdint>
 
 #include "../Activity.h"
-#include "ChessEngine.h"
+#include "engine/Game.h"
 
 class ChessActivity final : public Activity {
   static constexpr int BOARD = 8;
 
  private:
+  Game game;
   GfxRenderer::Orientation savedOrientation = GfxRenderer::Orientation::Portrait;
-  ChessEngine engine;
+
   std::string info = "";
 
   static const int SELECT_PIECE = 0;
@@ -27,18 +28,19 @@ class ChessActivity final : public Activity {
   int selected = 0;
   int selected_piece = 0;
 
-  std::array<int, 64> pieces;
+  std::vector<int> pieces;
   std::vector<int> mine;
   std::vector<Move> moves;
 
-  Move response = Move{};
+  Move last = Move{};
 
+  void copyPieces();
   void savePosition();
   std::string loadPosition();
 
  public:
   explicit ChessActivity(GfxRenderer& renderer, MappedInputManager& mappedInput)
-      : Activity("Chess", renderer, mappedInput), engine() {}
+      : Activity("Chess", renderer, mappedInput), game() {}
 
   void onEnter() override;
   void onExit() override;

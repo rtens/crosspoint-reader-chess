@@ -1,24 +1,39 @@
+using namespace std;
+
 #include "ChessActivity.h"
 
 #include <Arduino.h>
 #include <GfxRenderer.h>
 #include <I18n.h>
 #include <Logging.h>
+#include <ctype.h>
 
 #include <algorithm>
 #include <cstdlib>
 #include <cstring>
+#include <string>
 
 #include "components/UITheme.h"
 #include "fontIds.h"
 
+void ChessActivity::copyPieces() {
+  pieces = {};
+  mine = {};
+
+  for (int i = 0; i < 64; i++) {
+    int piece = game.pieces[i];
+    pieces.push_back(piece);
+    if (piece & game.turn > 0) {
+      mine.push_back(i);
+    }
+  }
+}
+
 void ChessActivity::onEnter() {
   Activity::onEnter();
 
-  engine.newGame(loadPosition());
-
-  pieces = engine.pieces();
-  mine = engine.myPieces(engine.sideToMove());
+  game.restore(loadPosition());
+  copyPieces();
 
   savedOrientation = renderer.getOrientation();
   renderer.setOrientation(GfxRenderer::Orientation::Portrait);
@@ -36,10 +51,9 @@ void ChessActivity::loop() {
     onGoHome();
 
   } else if (mappedInput.wasReleased(MappedInputManager::Button::Left)) {
-    engine.newGame();
-    pieces = engine.pieces();
-    mine = engine.myPieces(engine.sideToMove());
-    response = Move{};
+    game.restore("8/8/8/8/8/8/PPPPPPPP/8 w - - 0 1");
+    copyPieces();
+    last = Move{};
     state = SELECT_PIECE;
     selected = 0;
     requestUpdate();
@@ -63,7 +77,8 @@ void ChessActivity::loop() {
     if (state == SELECT_PIECE) {
       selected_piece = selected;
       auto from = mine[selected_piece];
-      auto legals = engine.legalMoves(from);
+      auto legals = game.moves(from);
+      sort(legals.begin(), legals.end(), [](Move a, Move b) { return a.to < b.to; });
 
       moves = {Move{from, from}};
       moves.insert(moves.end(), legals.begin(), legals.end());
@@ -77,13 +92,11 @@ void ChessActivity::loop() {
         selected = selected_piece;
 
       } else {
-        response = moves[selected];
+        last = moves[selected];
 
-        engine.makeMove(response);
+        game.make(last);
         savePosition();
-
-        pieces = engine.pieces();
-        mine = engine.myPieces(engine.sideToMove());
+        copyPieces();
 
         if (mode == OTB) {
           state = SELECT_PIECE;
@@ -97,26 +110,25 @@ void ChessActivity::loop() {
     requestUpdate();
 
   } else if (state == THINKING) {
-    if (mode == COMPUTER) {
-      response = engine.respond();
-    } else {
-      auto theirs = engine.myPieces(engine.sideToMove());
+    // if (mode == COMPUTER) {
+    //   last = engine.respond();
+    // } else {
+    //   auto theirs = engine.myPieces(engine.sideToMove());
 
-      std::vector<Move> legals;
-      while (legals.size() == 0) {
-        auto piece = theirs[rand() % theirs.size()];
+    //   vector<Move> legals;
+    //   while (legals.size() == 0) {
+    //     auto piece = theirs[rand() % theirs.size()];
 
-        legals = engine.legalMoves(piece);
-      }
+    //     legals = engine.legalMoves(piece);
+    //   }
 
-      response = legals[rand() % legals.size()];
+    //   last = legals[rand() % legals.size()];
 
-      engine.makeMove(response);
-    }
-    savePosition();
+    //   engine.makeMove(last);
+    // }
+    // savePosition();
 
-    pieces = engine.pieces();
-    mine = engine.myPieces(engine.sideToMove());
+    // copyPieces();
 
     state = SELECT_PIECE;
     selected = 0;
@@ -165,14 +177,13 @@ void ChessActivity::render(RenderLock&&) {
   }
 
   // Draw board squares and pieces
-  int i = -1;
   for (int r = 0; r < BOARD; r++) {
     int off = CELL * r;
     int offY = boardY + off;
     int offX = boardX + off;
 
     for (int c = 0; c < BOARD; c++) {
-      i++;
+      int i = (r * 8) + c;
       int cx = boardX + c * CELL;
       int cy = boardY + r * CELL;
       bool darkSquare = (r + c) % 2 == 1;
@@ -195,49 +206,16 @@ void ChessActivity::render(RenderLock&&) {
         renderer.drawRoundedRect(cx, cy, CELL, CELL, 3, CELL / 2, true);
       }
 
-      if (response.from == i || response.to == i) {
+      if (last.from == i || last.to == i) {
         renderer.drawRect(cx, cy, CELL, CELL, 2, true);
       }
 
       int piece = pieces[i];
-      if (piece != 0) {
+      if (piece != Game::EMPTY) {
         const char* pieceStr = "";
         switch (piece) {
-          case ChessEngine::WHITE_PAWN:
+          case Game::WHITE | Game::PAWN:
             pieceStr = "P";
-            break;
-          case ChessEngine::WHITE_KING:
-            pieceStr = "K";
-            break;
-          case ChessEngine::WHITE_QUEEN:
-            pieceStr = "Q";
-            break;
-          case ChessEngine::WHITE_BISHOP:
-            pieceStr = "B";
-            break;
-          case ChessEngine::WHITE_KNIGHT:
-            pieceStr = "N";
-            break;
-          case ChessEngine::WHITE_ROOK:
-            pieceStr = "R";
-            break;
-          case ChessEngine::BLACK_PAWN:
-            pieceStr = "p";
-            break;
-          case ChessEngine::BLACK_KING:
-            pieceStr = "k";
-            break;
-          case ChessEngine::BLACK_QUEEN:
-            pieceStr = "q";
-            break;
-          case ChessEngine::BLACK_BISHOP:
-            pieceStr = "b";
-            break;
-          case ChessEngine::BLACK_KNIGHT:
-            pieceStr = "n";
-            break;
-          case ChessEngine::BLACK_ROOK:
-            pieceStr = "r";
             break;
         }
 
@@ -264,15 +242,15 @@ void ChessActivity::render(RenderLock&&) {
     if (selected == 0) {
       renderer.drawCenteredText(SMALL_FONT_ID, statusY, "Cancel");
     } else {
-      renderer.drawCenteredText(SMALL_FONT_ID, statusY, engine.printMove(moves[selected]).c_str());
+      renderer.drawCenteredText(SMALL_FONT_ID, statusY, Game::print(moves[selected]).c_str());
     }
   } else if (state == THINKING) {
     renderer.drawCenteredText(SMALL_FONT_ID, statusY, "Thinking...");
   }
 
   // Button hints
-  const char* btn1 = "Quit";
-  char* btn2 = "";
+  const string btn1 = "Quit";
+  string btn2 = "";
   if (mode == COMPUTER) {
     btn2 = "AI";
   } else if (mode == OTB) {
@@ -280,10 +258,10 @@ void ChessActivity::render(RenderLock&&) {
   } else {
     btn2 = "RND";
   }
-  const char* btn3 = "New";
-  const char* btn4 = "";
+  const string btn3 = "New";
+  const string btn4 = "";
 
-  const auto labels = mappedInput.mapLabels(btn1, btn2, btn3, btn4);
+  const auto labels = mappedInput.mapLabels(btn1.c_str(), btn2.c_str(), btn3.c_str(), btn4.c_str());
   GUI.drawButtonHints(renderer, labels.btn1, labels.btn2, labels.btn3, labels.btn4);
 
   renderer.displayBuffer();
@@ -292,7 +270,7 @@ void ChessActivity::render(RenderLock&&) {
 void ChessActivity::savePosition() {
   auto file = Storage.open("/chess_position.txt", O_WRITE | O_CREAT | O_TRUNC);
   if (file) {
-    std::string position = engine.printPosition();
+    string position = game.fen();
     file.write(position.c_str(), position.size());
     file.close();
     LOG_INF("CHESS", "Wrote position: %s", position.c_str());
@@ -301,15 +279,15 @@ void ChessActivity::savePosition() {
   }
 }
 
-std::string ChessActivity::loadPosition() {
+string ChessActivity::loadPosition() {
   HalFile file = Storage.open("/chess_position.txt");
   if (file) {
     char buffer[file.size()];
     file.read(buffer, file.size());
     LOG_INF("CHESS", "Read position: %s", buffer);
-    return std::string(buffer);
+    return string(buffer);
   } else {
-    LOG_ERR("CHESS", "Failed to open chess_position.txt for writing");
-    return "position startpos";
+    LOG_ERR("CHESS", "Failed to open chess_position.txt for reading");
+    return "8/8/8/8/8/8/P7/8 w - - 0 1";
   }
 }

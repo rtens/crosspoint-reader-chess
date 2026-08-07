@@ -7,24 +7,62 @@ Debug: python scripts/debugging_monitor.py COM11
 
 ## Current
 
+### Play with own engine
+
+- [>] Read and print FEN
+- [>] Generate legal moves
+  - [>] Pawn
+    - [X] start
+    - [X] normal
+    - [ ] blocked
+    - [ ] capture
+    - [ ] promotion
+    - [ ] white
+    - [ ] black
+  - [ ] Rook
+  - [ ] Knight
+  - [ ] Bishop
+  - [ ] King
+  - [ ] Queen
+  - [ ] Checked King
+  - [ ] Castling
+    - [ ] King side
+    - [ ] Queen side
+
 
 ## Planned
 
-### End game
+### Game over
 
-- detect game over
 - Print who won
 - No more moves
 
-### Stable engine
+### Use symbols as pieces
 
-- Current engine crashes all the time
-- Probably need to implement my own engine
+### Random response
+
+### Best evaluation response
+
+### Deep search
+
+### alpha-beta pruning
+
+### Order moves
+
+### Captures extension
+
+### Piece square tables
+
+### Openings
+
+### Iterative deepening
+
+### Transposition tables
+
+### End game
 
 
 ## Ideas
-
-### Use symbols as pieces
 
 ### Randomly choose color
 
