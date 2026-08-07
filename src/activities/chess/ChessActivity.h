@@ -17,12 +17,12 @@ class ChessActivity final : public Activity {
   static const int SELECT_MOVE = 1;
   static const int THINKING = 2;
 
-  static const int COMPUTER = 0;
-  static const int OTB = 1;
-  static const int RANDROM = 2;
+  static const int OTB = 0;
+  static const int RANDROM = 1;
+  static const int COMPUTER = 2;
 
   int state = SELECT_PIECE;
-  int mode = COMPUTER;
+  int mode = OTB;
 
   int selected = 0;
   int selected_piece = 0;

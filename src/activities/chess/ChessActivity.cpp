@@ -39,6 +39,7 @@ void ChessActivity::loop() {
     engine.newGame();
     pieces = engine.pieces();
     mine = engine.myPieces(engine.sideToMove());
+    response = Move{};
     state = SELECT_PIECE;
     selected = 0;
     requestUpdate();
@@ -76,9 +77,9 @@ void ChessActivity::loop() {
         selected = selected_piece;
 
       } else {
-        Move move = moves[selected];
+        response = moves[selected];
 
-        engine.makeMove(move);
+        engine.makeMove(response);
         savePosition();
 
         pieces = engine.pieces();

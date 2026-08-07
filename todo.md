@@ -28,13 +28,9 @@ Debug: python scripts/debugging_monitor.py COM11
 
 ### Randomly choose color
 
-### Start new game
-
 ### Set different strengths
 
 ### Undo
-
-### Refresh screen automatically
 
 ### Export PTN of game
 
@@ -42,10 +38,12 @@ Debug: python scripts/debugging_monitor.py COM11
 
 ### Menu item icon
 
-### Print "Thinking..."
-
 
 ## Completed
+
+### Highlight own last move
+
+- to support OTB play passing back and forth
 
 ### Resume game
 
