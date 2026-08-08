@@ -7,28 +7,6 @@ Debug: python scripts/debugging_monitor.py COM11
 
 ## Current
 
-### Play with own engine
-
-- [>] Read and print FEN
-- [>] Generate legal moves
-  - [>] Pawn
-    - [X] start
-    - [X] normal
-    - [ ] blocked
-    - [ ] capture
-    - [ ] promotion
-    - [ ] white
-    - [ ] black
-  - [ ] Rook
-  - [ ] Knight
-  - [ ] Bishop
-  - [ ] King
-  - [ ] Queen
-  - [ ] Checked King
-  - [ ] Castling
-    - [ ] King side
-    - [ ] Queen side
-
 
 ## Planned
 
@@ -39,28 +17,6 @@ Debug: python scripts/debugging_monitor.py COM11
 
 ### Use symbols as pieces
 
-### Random response
-
-### Best evaluation response
-
-### Deep search
-
-### alpha-beta pruning
-
-### Order moves
-
-### Captures extension
-
-### Piece square tables
-
-### Openings
-
-### Iterative deepening
-
-### Transposition tables
-
-### End game
-
 
 ## Ideas
 
@@ -70,7 +26,7 @@ Debug: python scripts/debugging_monitor.py COM11
 
 ### Undo
 
-### Export PTN of game
+### Export PGN of game
 
 ### Download and solve Puzzles
 
@@ -78,6 +34,10 @@ Debug: python scripts/debugging_monitor.py COM11
 
 
 ## Completed
+
+### Use millipawn as engine
+
+- include as submodule
 
 ### Highlight own last move
 

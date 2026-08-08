@@ -1,9 +1,12 @@
 #pragma once
 
+#include <Game.h>
+
 #include <cstdint>
 
 #include "../Activity.h"
-#include "engine/Game.h"
+
+using namespace std;
 
 class ChessActivity final : public Activity {
   static constexpr int BOARD = 8;
@@ -12,7 +15,7 @@ class ChessActivity final : public Activity {
   Game game;
   GfxRenderer::Orientation savedOrientation = GfxRenderer::Orientation::Portrait;
 
-  std::string info = "";
+  string info = "";
 
   static const int SELECT_PIECE = 0;
   static const int SELECT_MOVE = 1;
@@ -28,15 +31,15 @@ class ChessActivity final : public Activity {
   int selected = 0;
   int selected_piece = 0;
 
-  std::vector<int> pieces;
-  std::vector<int> mine;
-  std::vector<Move> moves;
+  vector<int> pieces;
+  vector<int> mine;
+  vector<Move> moves;
 
   Move last = Move{};
 
   void copyPieces();
   void savePosition();
-  std::string loadPosition();
+  string loadPosition();
 
  public:
   explicit ChessActivity(GfxRenderer& renderer, MappedInputManager& mappedInput)

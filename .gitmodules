@@ -2,3 +2,6 @@
 	path = freeink-sdk
 	url = https://github.com/Free-Ink/freeink-sdk.git
 	branch = main
+[submodule "millipawn"]
+	path = millipawn
+	url = https://github.com/rtens/millipawn.git

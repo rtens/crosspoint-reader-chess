@@ -1,5 +1,3 @@
-using namespace std;
-
 #include "ChessActivity.h"
 
 #include <Arduino.h>
@@ -16,6 +14,8 @@ using namespace std;
 #include "components/UITheme.h"
 #include "fontIds.h"
 
+using namespace std;
+
 void ChessActivity::copyPieces() {
   pieces = {};
   mine = {};
@@ -23,7 +23,8 @@ void ChessActivity::copyPieces() {
   for (int i = 0; i < 64; i++) {
     int piece = game.pieces[i];
     pieces.push_back(piece);
-    if (piece & game.turn > 0) {
+
+    if (piece & game.turn) {
       mine.push_back(i);
     }
   }
@@ -51,7 +52,7 @@ void ChessActivity::loop() {
     onGoHome();
 
   } else if (mappedInput.wasReleased(MappedInputManager::Button::Left)) {
-    game.restore("8/8/8/8/8/8/PPPPPPPP/8 w - - 0 1");
+    game.restore(Game::STARTPOS);
     copyPieces();
     last = Move{};
     state = SELECT_PIECE;
@@ -75,6 +76,8 @@ void ChessActivity::loop() {
 
   } else if (mappedInput.wasReleased(MappedInputManager::Button::Up)) {
     if (state == SELECT_PIECE) {
+      if (!mine.size()) return;
+
       selected_piece = selected;
       auto from = mine[selected_piece];
       auto legals = game.moves(from);
@@ -160,7 +163,7 @@ void ChessActivity::render(RenderLock&&) {
   int selected_square = -1;
   int piece_square = -1;
 
-  if (state == SELECT_PIECE) {
+  if (mine.size() && state == SELECT_PIECE) {
     selected_square = mine[selected];
 
   } else if (state == SELECT_MOVE) {
@@ -212,18 +215,29 @@ void ChessActivity::render(RenderLock&&) {
 
       int piece = pieces[i];
       if (piece != Game::EMPTY) {
-        const char* pieceStr = "";
-        switch (piece) {
-          case Game::WHITE | Game::PAWN:
-            pieceStr = "P";
-            break;
+        int type = piece & Game::TYPE;
+        int color = piece & Game::COLOR;
+
+        const char* pieceStr = "?";
+        if (type == Game::PAWN) pieceStr = "p";
+        if (type == Game::ROOK) pieceStr = "r";
+        if (type == Game::KNIGHT) pieceStr = "n";
+        if (type == Game::BISHOP) pieceStr = "b";
+        if (type == Game::QUEEN) pieceStr = "q";
+        if (type == Game::KING) pieceStr = "k";
+
+        auto font = NOTOSERIF_16_FONT_ID;
+        if (color == Game::WHITE) {
+          char upper = pieceStr[0] - 'a' + 'A';
+          pieceStr = string{upper}.c_str();
+          font = NOTOSANS_16_FONT_ID;
         }
 
-        int tW = renderer.getTextWidth(NOTOSANS_16_FONT_ID, pieceStr);
-        int tH = renderer.getTextHeight(NOTOSANS_16_FONT_ID);
+        int tW = renderer.getTextWidth(font, pieceStr);
+        int tH = renderer.getTextHeight(font);
         int px = cx + (CELL - tW) / 2;
         int py = cy + (CELL - tH) / 2;
-        renderer.drawText(NOTOSANS_16_FONT_ID, px, py, pieceStr, true);
+        renderer.drawText(font, px, py, pieceStr, true);
       }
     }
 
@@ -288,6 +302,6 @@ string ChessActivity::loadPosition() {
     return string(buffer);
   } else {
     LOG_ERR("CHESS", "Failed to open chess_position.txt for reading");
-    return "8/8/8/8/8/8/P7/8 w - - 0 1";
+    return Game::STARTPOS;
   }
 }
