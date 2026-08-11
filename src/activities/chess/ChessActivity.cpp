@@ -52,6 +52,14 @@ void ChessActivity::loop() {
     onGoHome();
 
   } else if (mappedInput.wasReleased(MappedInputManager::Button::Left)) {
+    game.undo();
+    copyPieces();
+    last = Move{};
+    state = SELECT_PIECE;
+    selected = 0;
+    requestUpdate();
+
+  } else if (mappedInput.wasReleased(MappedInputManager::Button::Right)) {
     game.restore(Game::STARTPOS);
     copyPieces();
     last = Move{};
@@ -272,8 +280,8 @@ void ChessActivity::render(RenderLock&&) {
   } else {
     btn2 = "RND";
   }
-  const string btn3 = "New";
-  const string btn4 = "";
+  const string btn3 = "Undo";
+  const string btn4 = "New";
 
   const auto labels = mappedInput.mapLabels(btn1.c_str(), btn2.c_str(), btn3.c_str(), btn4.c_str());
   GUI.drawButtonHints(renderer, labels.btn1, labels.btn2, labels.btn3, labels.btn4);

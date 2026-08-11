@@ -24,8 +24,6 @@ Debug: python scripts/debugging_monitor.py COM11
 
 ### Set different strengths
 
-### Undo
-
 ### Export PGN of game
 
 ### Download and solve Puzzles
@@ -34,6 +32,8 @@ Debug: python scripts/debugging_monitor.py COM11
 
 
 ## Completed
+
+### Undo
 
 ### Use millipawn as engine
 
