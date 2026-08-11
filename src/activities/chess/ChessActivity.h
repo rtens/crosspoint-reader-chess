@@ -20,6 +20,7 @@ class ChessActivity final : public Activity {
   static const int SELECT_PIECE = 0;
   static const int SELECT_MOVE = 1;
   static const int THINKING = 2;
+  static const int GAME_OVER = 3;
 
   static const int OTB = 0;
   static const int RANDROM = 1;
@@ -34,6 +35,7 @@ class ChessActivity final : public Activity {
   vector<int> pieces;
   vector<int> mine;
   vector<Move> moves;
+  int over;
 
   Move last = Move{};
 

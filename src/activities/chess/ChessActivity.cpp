@@ -109,7 +109,10 @@ void ChessActivity::loop() {
         savePosition();
         copyPieces();
 
-        if (mode == OTB) {
+        over = game.over();
+        if (over) {
+          state = GAME_OVER;
+        } else if (mode == OTB) {
           state = SELECT_PIECE;
           selected = 0;
         } else {
@@ -268,6 +271,12 @@ void ChessActivity::render(RenderLock&&) {
     }
   } else if (state == THINKING) {
     renderer.drawCenteredText(SMALL_FONT_ID, statusY, "Thinking...");
+  } else if (state == GAME_OVER) {
+    if (over == Game::CHECKMATE) {
+      renderer.drawCenteredText(SMALL_FONT_ID, statusY, "Checkmate!");
+    } else {
+      renderer.drawCenteredText(SMALL_FONT_ID, statusY, "Stalemate =|");
+    }
   }
 
   // Button hints

@@ -10,11 +10,6 @@ Debug: python scripts/debugging_monitor.py COM11
 
 ## Planned
 
-### Game over
-
-- Print who won
-- No more moves
-
 ### Use symbols as pieces
 
 
@@ -22,18 +17,17 @@ Debug: python scripts/debugging_monitor.py COM11
 
 ### Randomly choose color
 
-### Set different strengths
-
-### Export PGN of game
-
-### Download and solve Puzzles
-
 ### Menu item icon
 
 
 ## Completed
 
-### Undo
+### Game over
+
+- Print if checkmate or stalemate
+- Allow no more moves
+
+### Undo last move
 
 ### Use millipawn as engine
 
