@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Game.h>
+#include <Puzzle.h>
 
 #include <cstdint>
 
@@ -8,26 +9,27 @@
 
 using namespace std;
 
-class ChessActivity final : public Activity {
-  static constexpr int BOARD = 8;
+enum Mode { OTB, PUZZLES, COMPUTER };
 
+enum State { SELECT_PIECE, SELECT_MOVE, WAIT, GAME_OVER, IDLE };
+
+class ChessActivity final : public Activity {
  private:
   Game game;
+  Puzzle puzzle;
+
   GfxRenderer::Orientation savedOrientation = GfxRenderer::Orientation::Portrait;
 
+  string header = "Chess";
   string info = "";
+  string btnL = "";
+  string btnR = "";
 
-  static const int SELECT_PIECE = 0;
-  static const int SELECT_MOVE = 1;
-  static const int THINKING = 2;
-  static const int GAME_OVER = 3;
+  Mode mode = PUZZLES;
+  int level = 0;
 
-  static const int OTB = 0;
-  static const int RANDROM = 1;
-  static const int COMPUTER = 2;
-
-  int state = SELECT_PIECE;
-  int mode = OTB;
+  State state = SELECT_PIECE;
+  int puzzleState = Puzzle::RIGHT;
 
   int selected = 0;
   int selected_piece = 0;
@@ -39,13 +41,24 @@ class ChessActivity final : public Activity {
 
   Move last = Move{};
 
+  void make(Move move);
   void copyPieces();
+
   void savePosition();
   string loadPosition();
 
+  void loadMode();
+  void saveMode();
+
+  int loadPuzzleIndex();
+  void savePuzzleIndex(int index);
+  void startPuzzle();
+  // void loadPuzzle(bool download = true);
+  void downloadPuzzles(string filename);
+
  public:
   explicit ChessActivity(GfxRenderer& renderer, MappedInputManager& mappedInput)
-      : Activity("Chess", renderer, mappedInput), game() {}
+      : Activity("Chess", renderer, mappedInput), game(), puzzle(&game) {}
 
   void onEnter() override;
   void onExit() override;

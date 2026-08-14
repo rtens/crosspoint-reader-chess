@@ -1,20 +1,154 @@
 #include "ChessActivity.h"
 
 #include <Arduino.h>
+#include <ArduinoJson.h>
 #include <GfxRenderer.h>
 #include <I18n.h>
 #include <Logging.h>
+#include <WiFi.h>
 #include <ctype.h>
 
 #include <algorithm>
 #include <cstdlib>
 #include <cstring>
+#include <sstream>
 #include <string>
 
+#include "activities/network/WifiSelectionActivity.h"
 #include "components/UITheme.h"
 #include "fontIds.h"
+#include "network/HttpDownloader.h"
 
 using namespace std;
+
+void ChessActivity::onEnter() {
+  Activity::onEnter();
+
+  loadMode();
+  startPuzzle();
+
+  savedOrientation = renderer.getOrientation();
+  renderer.setOrientation(GfxRenderer::Orientation::Portrait);
+  requestUpdate();
+}
+
+string puzzleDifficulty(int level) {
+  switch (level) {
+    default:
+      return "any";
+  }
+}
+
+void ChessActivity::onExit() {
+  Activity::onExit();
+  renderer.setOrientation(savedOrientation);
+}
+
+void ChessActivity::loop() {
+  if (mappedInput.wasReleased(MappedInputManager::Button::Back)) {
+    onGoHome();
+  }
+
+  if (mappedInput.wasReleased(MappedInputManager::Button::Confirm)) {
+    // Open mode selection activity
+  }
+
+  if (mode == PUZZLES) {
+    if (mappedInput.wasReleased(MappedInputManager::Button::Left)) {
+      if (puzzleState == Puzzle::WRONG) {
+        puzzle.undo();
+        copyPieces();
+        info = "Try again";
+        puzzleState = Puzzle::RIGHT;
+        state = SELECT_PIECE;
+        selected = selected_piece;
+      } else if (puzzleState == Puzzle::SOLVED) {
+        startPuzzle();
+      }
+      last = Move{};
+      requestUpdate();
+    }
+
+    if (mappedInput.wasReleased(MappedInputManager::Button::Right)) {
+      int index = loadPuzzleIndex();
+      savePuzzleIndex(index + 1);
+      startPuzzle();
+      requestUpdate();
+    }
+  }
+
+  if (mappedInput.wasReleased(MappedInputManager::Button::Down)) {
+    selected++;
+    requestUpdate();
+  }
+
+  if (mappedInput.wasReleased(MappedInputManager::Button::Up)) {
+    if (state == SELECT_PIECE) {
+      if (!mine.size()) return;
+
+      selected %= mine.size();
+      selected_piece = selected;
+      auto from = mine[selected_piece];
+      moves = game.moves(from);
+      sort(moves.begin(), moves.end(), [](Move a, Move b) { return a.to < b.to; });
+      moves.insert(moves.begin(), Move{from, from});
+
+      state = SELECT_MOVE;
+      selected = 0;
+
+    } else if (state == SELECT_MOVE) {
+      if (selected == 0) {
+        state = SELECT_PIECE;
+        selected = selected_piece;
+
+      } else {
+        selected %= moves.size();
+        last = moves[selected];
+        make(last);
+        copyPieces();
+
+        over = game.isOver();
+        if (over) {
+          state = GAME_OVER;
+        }
+      }
+    }
+
+    requestUpdate();
+  }
+}
+
+void ChessActivity::make(Move move) {
+  if (mode == PUZZLES) {
+    puzzleState = puzzle.propose(move);
+    last = puzzle.last;
+    copyPieces();
+
+    if (puzzleState == Puzzle::RIGHT) {
+      state = SELECT_PIECE;
+      selected = 0;
+      info = "Go on";
+      btnL = "";
+      btnR = "Hint";
+    } else if (puzzleState == Puzzle::WRONG) {
+      state = IDLE;
+      info = "Not quite";
+      btnL = "Undo";
+      btnR = "";
+    } else if (puzzleState == Puzzle::SOLVED) {
+      state = IDLE;
+      info = "Good job!";
+      btnL = "Again";
+      btnR = "Next";
+    }
+
+  } else if (mode == OTB) {
+    game.make(move);
+    savePosition();
+    state = SELECT_PIECE;
+    selected = 0;
+  }
+}
 
 void ChessActivity::copyPieces() {
   pieces = {};
@@ -30,138 +164,17 @@ void ChessActivity::copyPieces() {
   }
 }
 
-void ChessActivity::onEnter() {
-  Activity::onEnter();
-
-  game.restore(loadPosition());
-  copyPieces();
-
-  savedOrientation = renderer.getOrientation();
-  renderer.setOrientation(GfxRenderer::Orientation::Portrait);
-  requestUpdate();
-}
-
-void ChessActivity::onExit() {
-  Activity::onExit();
-  // Restore orientation so the next activity (reader) starts clean
-  renderer.setOrientation(savedOrientation);
-}
-
-void ChessActivity::loop() {
-  if (mappedInput.wasReleased(MappedInputManager::Button::Back)) {
-    onGoHome();
-
-  } else if (mappedInput.wasReleased(MappedInputManager::Button::Left)) {
-    game.undo();
-    copyPieces();
-    last = Move{};
-    state = SELECT_PIECE;
-    selected = 0;
-    requestUpdate();
-
-  } else if (mappedInput.wasReleased(MappedInputManager::Button::Right)) {
-    game.restore(Game::STARTPOS);
-    copyPieces();
-    last = Move{};
-    state = SELECT_PIECE;
-    selected = 0;
-    requestUpdate();
-
-  } else if (mappedInput.wasReleased(MappedInputManager::Button::Confirm)) {
-    mode = (mode + 1) % 3;
-
-    requestUpdate();
-
-  } else if (mappedInput.wasReleased(MappedInputManager::Button::Down)) {
-    selected++;
-    if (state == SELECT_PIECE) {
-      selected %= mine.size();
-    } else if (state == SELECT_MOVE) {
-      selected %= moves.size();
-    }
-
-    requestUpdate();
-
-  } else if (mappedInput.wasReleased(MappedInputManager::Button::Up)) {
-    if (state == SELECT_PIECE) {
-      if (!mine.size()) return;
-
-      selected_piece = selected;
-      auto from = mine[selected_piece];
-      auto legals = game.moves(from);
-      sort(legals.begin(), legals.end(), [](Move a, Move b) { return a.to < b.to; });
-
-      moves = {Move{from, from}};
-      moves.insert(moves.end(), legals.begin(), legals.end());
-
-      state = SELECT_MOVE;
-      selected = 0;
-
-    } else if (state == SELECT_MOVE) {
-      if (selected == 0) {
-        state = SELECT_PIECE;
-        selected = selected_piece;
-
-      } else {
-        last = moves[selected];
-
-        game.make(last);
-        savePosition();
-        copyPieces();
-
-        over = game.over();
-        if (over) {
-          state = GAME_OVER;
-        } else if (mode == OTB) {
-          state = SELECT_PIECE;
-          selected = 0;
-        } else {
-          state = THINKING;
-        }
-      }
-    }
-
-    requestUpdate();
-
-  } else if (state == THINKING) {
-    // if (mode == COMPUTER) {
-    //   last = engine.respond();
-    // } else {
-    //   auto theirs = engine.myPieces(engine.sideToMove());
-
-    //   vector<Move> legals;
-    //   while (legals.size() == 0) {
-    //     auto piece = theirs[rand() % theirs.size()];
-
-    //     legals = engine.legalMoves(piece);
-    //   }
-
-    //   last = legals[rand() % legals.size()];
-
-    //   engine.makeMove(last);
-    // }
-    // savePosition();
-
-    // copyPieces();
-
-    state = SELECT_PIECE;
-    selected = 0;
-
-    requestUpdate();
-  }
-}
-
 void ChessActivity::render(RenderLock&&) {
   const auto& metrics = UITheme::getInstance().getMetrics();
   const auto pageWidth = renderer.getScreenWidth();
   const auto pageHeight = renderer.getScreenHeight();
-  const int CELL = (pageWidth - 10) / BOARD;
+  const int boardSize = pageWidth - 10;
+  const int cellSize = boardSize / 8;
 
   renderer.clearScreen();
 
-  GUI.drawHeader(renderer, Rect{0, metrics.topPadding, pageWidth, metrics.headerHeight}, "Chess");
+  GUI.drawHeader(renderer, Rect{0, metrics.topPadding, pageWidth, metrics.headerHeight}, header.c_str());
 
-  const int boardSize = CELL * BOARD;
   const int boardX = (pageWidth - boardSize) / 2;
   const int contentTop = metrics.topPadding + metrics.headerHeight + 4;
   const int contentBot = pageHeight - metrics.buttonHintsHeight - 4;
@@ -175,57 +188,60 @@ void ChessActivity::render(RenderLock&&) {
   int piece_square = -1;
 
   if (mine.size() && state == SELECT_PIECE) {
+    selected %= mine.size();
     selected_square = mine[selected];
 
   } else if (state == SELECT_MOVE) {
     piece_square = mine[selected_piece];
+    selected %= moves.size();
     selected_square = moves[selected].to;
 
+    // Draw legal moves
     for (int m = 1; m < moves.size(); m++) {
       int to = moves[m].to;
-      int size = CELL / 5;
-      int cx = boardX + (to % 8) * CELL + (CELL - size) / 2;
-      int cy = boardY + (to / 8) * CELL + (CELL - size) / 2;
+      int size = cellSize / 5;
+      int cx = (to % 8) * cellSize + boardX + (cellSize - size) / 2;
+      int cy = (to / 8) * cellSize + boardY + (cellSize - size) / 2;
       renderer.fillRoundedRect(cx, cy, size, size, size / 2, Color::Black);
     }
   }
 
   // Draw board squares and pieces
-  for (int r = 0; r < BOARD; r++) {
-    int off = CELL * r;
+  for (int r = 0; r < 8; r++) {
+    int off = cellSize * r;
     int offY = boardY + off;
     int offX = boardX + off;
 
-    for (int c = 0; c < BOARD; c++) {
+    for (int c = 0; c < 8; c++) {
       int i = (r * 8) + c;
-      int cx = boardX + c * CELL;
-      int cy = boardY + r * CELL;
+      int cx = boardX + c * cellSize;
+      int cy = boardY + r * cellSize;
       bool darkSquare = (r + c) % 2 == 1;
 
       if (darkSquare) {
-        int h = CELL / 4;
-        for (int d = h; d <= CELL; d += h) {
+        int h = cellSize / 4;
+        for (int d = h; d <= cellSize; d += h) {
           renderer.drawLine(cx + d, cy, cx, cy + d);
         }
-        for (int d = h; d < CELL - 1; d += h) {
-          renderer.drawLine(cx + CELL - d, cy + CELL, cx + CELL, cy + CELL - d);
+        for (int d = h; d < cellSize - 1; d += h) {
+          renderer.drawLine(cx + cellSize - d, cy + cellSize, cx + cellSize, cy + cellSize - d);
         }
       }
 
       if (selected_square == i) {
-        renderer.drawRect(cx, cy, CELL, CELL, 3, true);
+        renderer.drawRect(cx, cy, cellSize, cellSize, 3, true);
       }
 
       if (piece_square == i) {
-        renderer.drawRoundedRect(cx, cy, CELL, CELL, 3, CELL / 2, true);
+        renderer.drawRoundedRect(cx, cy, cellSize, cellSize, 3, cellSize / 2, true);
       }
 
       if (last.from == i || last.to == i) {
-        renderer.drawRect(cx, cy, CELL, CELL, 2, true);
+        renderer.drawRect(cx, cy, cellSize, cellSize, 2, true);
       }
 
-      int piece = pieces[i];
-      if (piece != Game::EMPTY) {
+      if (i < pieces.size() && pieces[i] != Game::EMPTY) {
+        int piece = pieces[i];
         int type = piece & Game::TYPE;
         int color = piece & Game::COLOR;
 
@@ -246,8 +262,8 @@ void ChessActivity::render(RenderLock&&) {
 
         int tW = renderer.getTextWidth(font, pieceStr);
         int tH = renderer.getTextHeight(font);
-        int px = cx + (CELL - tW) / 2;
-        int py = cy + (CELL - tH) / 2;
+        int px = cx + (cellSize - tW) / 2;
+        int py = cy + (cellSize - tH) / 2;
         renderer.drawText(font, px, py, pieceStr, true);
       }
     }
@@ -261,64 +277,175 @@ void ChessActivity::render(RenderLock&&) {
 
   // Status line
   int statusY = boardY + boardSize + 6;
+
+  string status = "";
   if (state == SELECT_PIECE) {
-    renderer.drawCenteredText(SMALL_FONT_ID, statusY, "Select this piece");
+    status = (selected_square > -1) ? Game::print(selected_square) : "";
   } else if (state == SELECT_MOVE) {
-    if (selected == 0) {
-      renderer.drawCenteredText(SMALL_FONT_ID, statusY, "Cancel");
-    } else {
-      renderer.drawCenteredText(SMALL_FONT_ID, statusY, Game::print(moves[selected]).c_str());
-    }
-  } else if (state == THINKING) {
-    renderer.drawCenteredText(SMALL_FONT_ID, statusY, "Thinking...");
+    status = selected ? Game::print(moves[selected]) : "Cancel";
   } else if (state == GAME_OVER) {
-    if (over == Game::CHECKMATE) {
-      renderer.drawCenteredText(SMALL_FONT_ID, statusY, "Checkmate!");
-    } else {
-      renderer.drawCenteredText(SMALL_FONT_ID, statusY, "Stalemate =|");
-    }
+    status = (over == Game::CHECKMATE) ? "CHECKMATE!" : "Stalemate =|";
+  } else if (state == WAIT) {
+    status = "Wait...";
   }
+  renderer.drawCenteredText(SMALL_FONT_ID, statusY, status.c_str());
 
-  // Button hints
-  const string btn1 = "Quit";
-  string btn2 = "";
-  if (mode == COMPUTER) {
-    btn2 = "AI";
-  } else if (mode == OTB) {
-    btn2 = "OTB";
-  } else {
-    btn2 = "RND";
-  }
-  const string btn3 = "Undo";
-  const string btn4 = "New";
-
-  const auto labels = mappedInput.mapLabels(btn1.c_str(), btn2.c_str(), btn3.c_str(), btn4.c_str());
+  // Buttons
+  const auto labels = mappedInput.mapLabels("Quit", "Mode", btnL.c_str(), btnR.c_str());
   GUI.drawButtonHints(renderer, labels.btn1, labels.btn2, labels.btn3, labels.btn4);
 
   renderer.displayBuffer();
 }
 
+void ChessActivity::loadMode() {
+  HalFile file = Storage.open("/chess_mode.json");
+  if (!file) return;
+
+  JsonDocument doc;
+  DeserializationError err = deserializeJson(doc, file);
+  file.close();
+  if (err) return;
+
+  mode = doc["mode"];
+  level = doc["level"];
+}
+
+void ChessActivity::saveMode() {
+  auto file = Storage.open("/chess_mode.json", O_WRITE | O_CREAT | O_TRUNC);
+  if (!file) return;
+
+  JsonDocument doc;
+  doc["mode"] = mode;
+  doc["level"] = level;
+
+  serializeJson(doc, file);
+  file.close();
+}
+
 void ChessActivity::savePosition() {
-  auto file = Storage.open("/chess_position.txt", O_WRITE | O_CREAT | O_TRUNC);
-  if (file) {
-    string position = game.fen();
-    file.write(position.c_str(), position.size());
-    file.close();
-    LOG_INF("CHESS", "Wrote position: %s", position.c_str());
-  } else {
-    LOG_ERR("CHESS", "Failed to open chess_position.txt for writing");
-  }
+  auto file = Storage.open("/chess_position.fen", O_WRITE | O_CREAT | O_TRUNC);
+  if (!file) return;
+
+  string position = game.fen();
+  file.write(position.c_str(), position.size());
+  file.close();
 }
 
 string ChessActivity::loadPosition() {
-  HalFile file = Storage.open("/chess_position.txt");
-  if (file) {
-    char buffer[file.size()];
-    file.read(buffer, file.size());
-    LOG_INF("CHESS", "Read position: %s", buffer);
-    return string(buffer);
-  } else {
-    LOG_ERR("CHESS", "Failed to open chess_position.txt for reading");
-    return Game::STARTPOS;
+  HalFile file = Storage.open("/chess_position.fen");
+  if (!file) return Game::STARTPOS;
+
+  char buffer[file.size()];
+  file.read(buffer, file.size());
+  file.close();
+
+  return string(buffer);
+}
+
+int ChessActivity::loadPuzzleIndex() {
+  HalFile file = Storage.open("/chess_puzzle_index.json");
+  if (!file) return 0;
+
+  JsonDocument doc;
+  DeserializationError err = deserializeJson(doc, file);
+  file.close();
+  if (err) return 0;
+
+  string difficulty = puzzleDifficulty(level);
+  if (!doc[difficulty].is<int>()) return 0;
+  return doc[difficulty];
+}
+
+void ChessActivity::savePuzzleIndex(int index) {
+  HalFile file = Storage.open("/chess_puzzle_index.json", O_READ | O_WRITE | O_CREAT | O_TRUNC);
+  if (!file) return;
+
+  JsonDocument doc;
+  deserializeJson(doc, file);
+
+  string difficulty = puzzleDifficulty(level);
+  doc[difficulty] = index;
+  serializeJson(doc, file);
+
+  file.close();
+}
+
+void ChessActivity::startPuzzle() {
+  string difficulty = puzzleDifficulty(level);
+  string filename = "/chess_puzzles_" + difficulty + ".json";
+  HalFile file;
+
+  if (!Storage.openFileForRead("CHESS", filename, file)) {
+    downloadPuzzles(filename);
+    return;
   }
+
+  int index = loadPuzzleIndex();
+  LOG_DBG("CHESS", "Index %i", index);
+
+  JsonDocument doc;
+  DeserializationError err = deserializeJson(doc, file);
+  file.close();
+
+  if (err) {
+    LOG_ERR("CHESS", "Parsing failed %s", err.c_str());
+    info = "Could not load puzzles";
+    return;
+  }
+
+  if (index >= doc["puzzles"].size()) {
+    downloadPuzzles(filename);
+    return;
+  }
+
+  JsonObject jsonPuzzle = doc["puzzles"][index];
+  string pgn = jsonPuzzle["game"]["pgn"];
+  JsonArray jsonSolution = jsonPuzzle["puzzle"]["solution"];
+
+  vector<string> solution;
+  for (const char* step : jsonSolution) {
+    solution.push_back(string(step));
+  }
+
+  LOG_DBG("CHESS", "Start puzzle %s", pgn.c_str());
+  puzzle.start(pgn, solution);
+  puzzleState = Puzzle::RIGHT;
+  copyPieces();
+  state = SELECT_PIECE;
+  selected = 0;
+
+  stringstream infos;
+  infos << "Puzzle " << (index + 1) << "/" << doc["puzzles"].size();
+  info = infos.str();
+}
+
+void ChessActivity::downloadPuzzles(string filename) {
+  WiFi.mode(WIFI_STA);
+  startActivityForResult(std::make_unique<WifiSelectionActivity>(renderer, mappedInput),
+                         [this, filename](const ActivityResult& wifi) {
+                           if (wifi.isCancelled) {
+                             LOG_DBG("CHESS", "No wifi");
+                             info = "Could not connect to WiFi";
+                             return;
+                           }
+
+                           string puzzlesUrl = "https://lichess.org/api/puzzle/batch/mix?nb=50";
+
+                           string difficulty = puzzleDifficulty(level);
+                           if (difficulty != "any") {
+                             puzzlesUrl += "&difficulty=" + difficulty;
+                           }
+
+                           LOG_DBG("CHESS", "GET %s", puzzlesUrl.c_str());
+                           auto result = HttpDownloader::downloadToFile(puzzlesUrl, filename, nullptr);
+
+                           if (result != HttpDownloader::OK) {
+                             LOG_ERR("CHESS", "Download failed %i", result);
+                             info = "Could not download puzzles";
+                             return;
+                           }
+
+                           LOG_DBG("CHESS", "Start puzzle %s", difficulty.c_str());
+                           startPuzzle();
+                         });
 }
