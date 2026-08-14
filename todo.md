@@ -8,9 +8,14 @@ Debug: python scripts/debugging_monitor.py COM11
 ## Current
 
 
-## Planned
+## Planned: v1.0
 
 - Labels for side buttons
+
+- Menu item icon
+
+
+## Planned
 
 - Show puzzle hint and next move
 
@@ -25,14 +30,18 @@ Debug: python scripts/debugging_monitor.py COM11
 
 ## Ideas
 
+- Redraw before puzzle response
+
 - Flip board when playing black
 
 - Use abstract piece symbols
 
-- Menu item icon
+- Lichess authentication
 
 
 ## Completed
+
+- Keep selection at moves piece
 
 - Use emoji piece symbols
 

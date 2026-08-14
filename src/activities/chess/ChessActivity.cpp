@@ -157,6 +157,12 @@ void ChessActivity::make(Move move) {
     if (puzzleState == Puzzle::RIGHT) {
       state = SELECT_PIECE;
       selected = 0;
+      for (int i = 0; i < mine.size(); i++) {
+        if (mine[i] == move.to) {
+          selected = i;
+          break;
+        }
+      }
       info = "Go on";
       btnL = "";
       btnR = "Hint";
