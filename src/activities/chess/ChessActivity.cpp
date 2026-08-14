@@ -54,27 +54,35 @@ void ChessActivity::loop() {
   }
 
   if (mode == PUZZLES) {
-    if (mappedInput.wasReleased(MappedInputManager::Button::Left)) {
-      if (puzzleState == Puzzle::WRONG) {
+    if (puzzleState == Puzzle::WRONG) {
+      if (mappedInput.wasReleased(MappedInputManager::Button::Left) ||
+          mappedInput.wasReleased(MappedInputManager::Button::Up)) {
         puzzle.undo();
         copyPieces();
         info = "Try again";
         puzzleState = Puzzle::RIGHT;
         state = SELECT_PIECE;
         selected = selected_piece;
-      } else if (puzzleState == Puzzle::SOLVED) {
-        startPuzzle();
-      }
-      last = Move{};
-      requestUpdate();
-    }
-
-    if (mappedInput.wasReleased(MappedInputManager::Button::Right)) {
-      if (puzzleState == Puzzle::SOLVED) {
-        int index = loadPuzzleIndex();
-        savePuzzleIndex(index + 1);
-        startPuzzle();
+        last = Move{};
         requestUpdate();
+      }
+
+    } else if (puzzleState == Puzzle::SOLVED) {
+      if (mappedInput.wasReleased(MappedInputManager::Button::Left) ||
+          mappedInput.wasReleased(MappedInputManager::Button::Up)) {
+        startPuzzle();
+        last = Move{};
+        requestUpdate();
+      }
+
+      if (mappedInput.wasReleased(MappedInputManager::Button::Right) ||
+          mappedInput.wasReleased(MappedInputManager::Button::Down)) {
+        if (puzzleState == Puzzle::SOLVED) {
+          int index = loadPuzzleIndex();
+          savePuzzleIndex(index + 1);
+          startPuzzle();
+          requestUpdate();
+        }
       }
     }
   }
