@@ -47,10 +47,12 @@ void ChessActivity::onExit() {
 void ChessActivity::loop() {
   if (mappedInput.wasReleased(MappedInputManager::Button::Back)) {
     onGoHome();
+    return;
   }
 
   if (mappedInput.wasReleased(MappedInputManager::Button::Confirm)) {
     // Open mode selection activity
+    return;
   }
 
   if (mode == PUZZLES) {
@@ -65,14 +67,15 @@ void ChessActivity::loop() {
         selected = selected_piece;
         last = Move{};
         requestUpdate();
+        return;
       }
 
     } else if (puzzleState == Puzzle::SOLVED) {
       if (mappedInput.wasReleased(MappedInputManager::Button::Left) ||
           mappedInput.wasReleased(MappedInputManager::Button::Up)) {
         startPuzzle();
-        last = Move{};
         requestUpdate();
+        return;
       }
 
       if (mappedInput.wasReleased(MappedInputManager::Button::Right) ||
@@ -82,6 +85,7 @@ void ChessActivity::loop() {
           savePuzzleIndex(index + 1);
           startPuzzle();
           requestUpdate();
+          return;
         }
       }
     }
@@ -90,6 +94,7 @@ void ChessActivity::loop() {
   if (mappedInput.wasReleased(MappedInputManager::Button::Down)) {
     selected++;
     requestUpdate();
+    return;
   }
 
   if (mappedInput.wasReleased(MappedInputManager::Button::Up)) {
@@ -125,6 +130,7 @@ void ChessActivity::loop() {
     }
 
     requestUpdate();
+    return;
   }
 }
 
@@ -192,7 +198,7 @@ void ChessActivity::render(RenderLock&&) {
   const int right = boardX + boardSize;
   const int bottom = boardY + boardSize;
 
-  renderer.drawCenteredText(SMALL_FONT_ID, boardY - 25, info.c_str());
+  renderer.drawCenteredText(UI_10_FONT_ID, boardY - 45, info.c_str());
 
   int selected_square = -1;
   int piece_square = -1;
@@ -205,15 +211,6 @@ void ChessActivity::render(RenderLock&&) {
     piece_square = mine[selected_piece];
     selected %= moves.size();
     selected_square = moves[selected].to;
-
-    // Draw legal moves
-    for (int m = 1; m < moves.size(); m++) {
-      int to = moves[m].to;
-      int size = cellSize / 5;
-      int cx = (to % 8) * cellSize + boardX + (cellSize - size) / 2;
-      int cy = (to / 8) * cellSize + boardY + (cellSize - size) / 2;
-      renderer.fillRoundedRect(cx, cy, size, size, size / 2, Color::Black);
-    }
   }
 
   // Draw board squares and pieces
@@ -283,8 +280,20 @@ void ChessActivity::render(RenderLock&&) {
   renderer.drawLine(boardX, bottom, right, bottom);
   renderer.drawLine(right, boardY, right, bottom);
 
+  // Draw legal moves
+  if (state == SELECT_MOVE) {
+    int size = cellSize / 5;
+    for (int m = 1; m < moves.size(); m++) {
+      int to = moves[m].to;
+      int cx = (to % 8) * cellSize + boardX + (cellSize - size) / 2;
+      int cy = (to / 8) * cellSize + boardY + (cellSize - size) / 2;
+      renderer.fillRoundedRect(cx, cy, size, size, size / 2, Color::Black);
+      renderer.fillRoundedRect(cx + 2, cy + 2, size - 4, size - 4, (size - 2) / 2, Color::White);
+    }
+  }
+
   // Status line
-  int statusY = boardY + boardSize + 6;
+  int statusY = boardY + boardSize + 15;
 
   string status = "";
   if (state == SELECT_PIECE) {
@@ -296,7 +305,7 @@ void ChessActivity::render(RenderLock&&) {
   } else if (state == WAIT) {
     status = "Wait...";
   }
-  renderer.drawCenteredText(SMALL_FONT_ID, statusY, status.c_str());
+  renderer.drawCenteredText(UI_10_FONT_ID, statusY, status.c_str());
 
   // Buttons
   const auto labels = mappedInput.mapLabels("Quit", "Mode", btnL.c_str(), btnR.c_str());
@@ -419,8 +428,12 @@ void ChessActivity::startPuzzle() {
   puzzle.start(pgn, solution);
   puzzleState = Puzzle::RIGHT;
   copyPieces();
+  last = Move{};
   state = SELECT_PIECE;
   selected = 0;
+
+  btnL = "";
+  btnR = "";
 
   stringstream infos;
   infos << "Puzzle " << (index + 1) << "/" << doc["puzzles"].size();
