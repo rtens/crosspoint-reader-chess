@@ -71,13 +71,14 @@ void ChessActivity::loop() {
 
   if (mode == PUZZLES) {
     if (puzzleState == Puzzle::WRONG) {
-      if (mappedInput.wasReleased(MappedInputManager::Button::Left) ||
-          mappedInput.wasReleased(MappedInputManager::Button::Up)) {
+      if (mappedInput.wasReleased(MappedInputManager::Button::Up)) {
         puzzle.undo();
         copyPieces();
         info = "Try again";
         puzzleState = Puzzle::RIGHT;
         state = SELECT_PIECE;
+        btnU = "Select";
+        btnD = "Next Piece";
         selected = selected_piece;
         last = Move{};
         requestUpdate();
@@ -85,15 +86,13 @@ void ChessActivity::loop() {
       }
 
     } else if (puzzleState == Puzzle::SOLVED) {
-      if (mappedInput.wasReleased(MappedInputManager::Button::Left) ||
-          mappedInput.wasReleased(MappedInputManager::Button::Up)) {
+      if (mappedInput.wasReleased(MappedInputManager::Button::Up)) {
         startPuzzle();
         requestUpdate();
         return;
       }
 
-      if (mappedInput.wasReleased(MappedInputManager::Button::Right) ||
-          mappedInput.wasReleased(MappedInputManager::Button::Down)) {
+      if (mappedInput.wasReleased(MappedInputManager::Button::Down)) {
         if (puzzleState == Puzzle::SOLVED) {
           int index = loadPuzzleIndex();
           savePuzzleIndex(index + 1);
@@ -107,6 +106,14 @@ void ChessActivity::loop() {
 
   if (mappedInput.wasReleased(MappedInputManager::Button::Down)) {
     selected++;
+    if (state == SELECT_MOVE) {
+      selected %= moves.size();
+      if (selected) {
+        btnU = "Make Move";
+      } else {
+        btnU = "Cancel";
+      }
+    }
     requestUpdate();
     return;
   }
@@ -124,22 +131,21 @@ void ChessActivity::loop() {
 
       state = SELECT_MOVE;
       selected = 0;
+      btnU = "Cancel";
+      btnD = "Next Move";
 
     } else if (state == SELECT_MOVE) {
       if (selected == 0) {
         state = SELECT_PIECE;
         selected = selected_piece;
+        btnU = "Select";
+        btnD = "Next Piece";
 
       } else {
         selected %= moves.size();
         last = moves[selected];
         make(last);
         copyPieces();
-
-        over = game.isOver();
-        if (over) {
-          state = GAME_OVER;
-        }
       }
     }
 
@@ -164,18 +170,31 @@ void ChessActivity::make(Move move) {
         }
       }
       info = "Go on";
+      btnU = "Select";
+      btnD = "Next Piece";
       btnL = "";
       btnR = "Hint";
+
     } else if (puzzleState == Puzzle::WRONG) {
       state = IDLE;
       info = "Not quite";
-      btnL = "Undo";
+      btnU = "Undo";
+      btnD = "";
+      btnL = "";
       btnR = "";
+
     } else if (puzzleState == Puzzle::SOLVED) {
       state = IDLE;
       info = "Good job!";
-      btnL = "Again";
-      btnR = "Next";
+      btnU = "Again";
+      btnD = "Next Puzzle";
+      btnL = "";
+      btnR = "";
+    }
+
+    over = game.isOver();
+    if (over) {
+      state = GAME_OVER;
     }
 
   } else if (mode == OTB) {
@@ -183,6 +202,8 @@ void ChessActivity::make(Move move) {
     savePosition();
     state = SELECT_PIECE;
     selected = 0;
+    btnU = "Select";
+    btnD = "Next Piece";
   }
 }
 
@@ -198,6 +219,17 @@ void ChessActivity::copyPieces() {
       mine.push_back(i);
     }
   }
+}
+
+void drawSideButton(const GfxRenderer& renderer, string text, int y, bool left = true) {
+  if (text == "") return;
+
+  int p = 7;
+  int tw = renderer.getTextWidth(SMALL_FONT_ID, text.c_str());
+  int th = renderer.getTextHeight(SMALL_FONT_ID) + 5;
+  int x = left ? 0 : (renderer.getScreenWidth() - tw - p * 4);
+  renderer.drawText(SMALL_FONT_ID, x + 2 * p, y + p, text.c_str());
+  renderer.drawRect(x, y, tw + p * 4, th + p * 2, 1);
 }
 
 void ChessActivity::render(RenderLock&&) {
@@ -218,7 +250,11 @@ void ChessActivity::render(RenderLock&&) {
   const int right = boardX + boardSize;
   const int bottom = boardY + boardSize;
 
-  renderer.drawCenteredText(UI_10_FONT_ID, boardY - 45, info.c_str());
+  const int infoY = boardY - 45;
+  renderer.drawCenteredText(UI_10_FONT_ID, infoY, info.c_str());
+
+  drawSideButton(renderer, btnU, infoY - 7);
+  drawSideButton(renderer, btnD, infoY - 7, false);
 
   int selected_square = -1;
   int piece_square = -1;
@@ -319,7 +355,7 @@ void ChessActivity::render(RenderLock&&) {
   if (state == SELECT_PIECE) {
     status = (selected_square > -1) ? Game::print(selected_square) : "";
   } else if (state == SELECT_MOVE) {
-    status = selected ? Game::print(moves[selected]) : "Cancel";
+    status = selected ? Game::print(moves[selected]) : Game::print(selected_square);
   } else if (state == GAME_OVER) {
     status = (over == Game::CHECKMATE) ? "CHECKMATE!" : "Stalemate =|";
   } else if (state == WAIT) {
@@ -451,7 +487,8 @@ void ChessActivity::startPuzzle() {
   last = Move{};
   state = SELECT_PIECE;
   selected = 0;
-
+  btnU = "Select";
+  btnD = "Next Piece";
   btnL = "";
   btnR = "";
 

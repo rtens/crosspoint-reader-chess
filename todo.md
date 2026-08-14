@@ -8,11 +8,6 @@ Debug: python scripts/debugging_monitor.py COM11
 ## Current
 
 
-## Planned: v1.0
-
-- Labels for side buttons
-
-
 ## Planned
 
 - Show puzzle hint and next move
@@ -41,6 +36,8 @@ Debug: python scripts/debugging_monitor.py COM11
 
 
 ## Completed
+
+- Labels for side buttons
 
 - Menu item icon
 

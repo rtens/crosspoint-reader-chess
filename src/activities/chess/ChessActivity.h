@@ -24,6 +24,8 @@ class ChessActivity final : public Activity {
   string info = "";
   string btnL = "";
   string btnR = "";
+  string btnU = "";
+  string btnD = "";
 
   Mode mode = PUZZLES;
   int level = 0;
