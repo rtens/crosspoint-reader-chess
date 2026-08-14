@@ -250,12 +250,6 @@ void ChessActivity::render(RenderLock&&) {
   const int right = boardX + boardSize;
   const int bottom = boardY + boardSize;
 
-  const int infoY = boardY - 45;
-  renderer.drawCenteredText(UI_10_FONT_ID, infoY, info.c_str());
-
-  drawSideButton(renderer, btnU, infoY - 7);
-  drawSideButton(renderer, btnD, infoY - 7, false);
-
   int selected_square = -1;
   int piece_square = -1;
 
@@ -268,6 +262,22 @@ void ChessActivity::render(RenderLock&&) {
     selected %= moves.size();
     selected_square = moves[selected].to;
   }
+
+  const int statusY = boardY - 45;
+  string status = "";
+  if (state == SELECT_PIECE) {
+    status = (selected_square > -1) ? Game::print(selected_square) : "";
+  } else if (state == SELECT_MOVE) {
+    status = selected ? Game::print(moves[selected]) : Game::print(selected_square);
+  } else if (state == GAME_OVER) {
+    status = (over == Game::CHECKMATE) ? "CHECKMATE!" : "Stalemate =|";
+  } else if (state == WAIT) {
+    status = "Wait...";
+  }
+  renderer.drawCenteredText(UI_10_FONT_ID, statusY, status.c_str());
+
+  drawSideButton(renderer, btnU, statusY - 7);
+  drawSideButton(renderer, btnD, statusY - 7, false);
 
   // Draw board squares and pieces
   for (int r = 0; r < 8; r++) {
@@ -348,20 +358,9 @@ void ChessActivity::render(RenderLock&&) {
     }
   }
 
-  // Status line
-  int statusY = boardY + boardSize + 15;
-
-  string status = "";
-  if (state == SELECT_PIECE) {
-    status = (selected_square > -1) ? Game::print(selected_square) : "";
-  } else if (state == SELECT_MOVE) {
-    status = selected ? Game::print(moves[selected]) : Game::print(selected_square);
-  } else if (state == GAME_OVER) {
-    status = (over == Game::CHECKMATE) ? "CHECKMATE!" : "Stalemate =|";
-  } else if (state == WAIT) {
-    status = "Wait...";
-  }
-  renderer.drawCenteredText(UI_10_FONT_ID, statusY, status.c_str());
+  // Info line
+  int infoY = boardY + boardSize + 15;
+  renderer.drawCenteredText(UI_10_FONT_ID, infoY, info.c_str());
 
   // Buttons
   const auto labels = mappedInput.mapLabels("Quit", "", btnL.c_str(), btnR.c_str());
