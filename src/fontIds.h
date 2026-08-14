@@ -12,6 +12,8 @@
 #define UI_10_FONT_ID (22918846)
 #define UI_12_FONT_ID (1635686837)
 #define SMALL_FONT_ID (674098198)
+#define NOTOSANS_48_EMOJI_FONT_ID (-1559376469)
+#define NOTOSANS_16_EMOJI_FONT_ID (-1559376470)
 
 // Font ID 0 is reserved as the "not found" sentinel.
 // Guard against any hash accidentally producing 0.

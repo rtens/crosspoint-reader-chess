@@ -10,19 +10,27 @@ Debug: python scripts/debugging_monitor.py COM11
 
 ## Planned
 
-- Use piece symbols
+- Show puzzle hint and next move
 
 - Change mode and level
+  - OTB
+  - Puzzles
+
+- Solve daily puzzle
+
+- Engine level random
 
 
 ## Ideas
 
-- Use abstract symbols
+- Use abstract piece symbols
 
 - Menu item icon
 
 
 ## Completed
+
+- Use emoji piece symbols
 
 - Solve puzzles
 

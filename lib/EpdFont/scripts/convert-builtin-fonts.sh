@@ -83,6 +83,9 @@ python fontconvert.py notosans_8_regular 8 \
   ../builtinFonts/source/NotoSansArabic/NotoSansArabic-Regular.ttf \
   --additional-intervals 0x05D0,0x05EA "${ARABIC_INTERVALS[@]}" > ../builtinFonts/notosans_8_regular.h
 
+echo "Generating large emoji font..."
+python fontconvert.py notosans_48_emoji 48 ../builtinFonts/source/NotoSans/NotoSans-Regular.ttf "/System/Library/Fonts/Apple Symbols.ttf" "/System/Library/Fonts/Supplemental/Arial Unicode.ttf" --only-additional --additional-intervals 0x2654,0x265F --additional-intervals 0x2680,0x2685 --additional-intervals 0x2190,0x2199 --additional-intervals 0x0030,0x0039 --additional-intervals 0x25EF,0x25EF --additional-intervals 0x25CE,0x25CE > ../builtinFonts/notosans_48_emoji.h
+
 echo ""
 echo "Running compression verification..."
 python verify_compression.py ../builtinFonts/

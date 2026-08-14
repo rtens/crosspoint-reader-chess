@@ -244,29 +244,27 @@ void ChessActivity::render(RenderLock&&) {
 
       if (i < pieces.size() && pieces[i] != Game::EMPTY) {
         int piece = pieces[i];
-        int type = piece & Game::TYPE;
-        int color = piece & Game::COLOR;
 
         const char* pieceStr = "?";
-        if (type == Game::PAWN) pieceStr = "p";
-        if (type == Game::ROOK) pieceStr = "r";
-        if (type == Game::KNIGHT) pieceStr = "n";
-        if (type == Game::BISHOP) pieceStr = "b";
-        if (type == Game::QUEEN) pieceStr = "q";
-        if (type == Game::KING) pieceStr = "k";
+        if (piece == (Game::WHITE | Game::PAWN)) pieceStr = "\u2659";
+        if (piece == (Game::WHITE | Game::KNIGHT)) pieceStr = "\u2658";
+        if (piece == (Game::WHITE | Game::BISHOP)) pieceStr = "\u2657";
+        if (piece == (Game::WHITE | Game::ROOK)) pieceStr = "\u2656";
+        if (piece == (Game::WHITE | Game::QUEEN)) pieceStr = "\u2655";
+        if (piece == (Game::WHITE | Game::KING)) pieceStr = "\u2654";
+        if (piece == (Game::BLACK | Game::PAWN)) pieceStr = "\u265F";
+        if (piece == (Game::BLACK | Game::KNIGHT)) pieceStr = "\u265E";
+        if (piece == (Game::BLACK | Game::BISHOP)) pieceStr = "\u265D";
+        if (piece == (Game::BLACK | Game::ROOK)) pieceStr = "\u265C";
+        if (piece == (Game::BLACK | Game::QUEEN)) pieceStr = "\u265B";
+        if (piece == (Game::BLACK | Game::KING)) pieceStr = "\u265A";
 
-        auto font = NOTOSERIF_16_FONT_ID;
-        if (color == Game::WHITE) {
-          char upper = pieceStr[0] - 'a' + 'A';
-          pieceStr = string{upper}.c_str();
-          font = NOTOSANS_16_FONT_ID;
-        }
-
+        auto font = NOTOSANS_16_EMOJI_FONT_ID;
         int tW = renderer.getTextWidth(font, pieceStr);
         int tH = renderer.getTextHeight(font);
         int px = cx + (cellSize - tW) / 2;
         int py = cy + (cellSize - tH) / 2;
-        renderer.drawText(font, px, py, pieceStr, true);
+        renderer.drawText(font, px, py - 10, pieceStr, true);
       }
     }
 
