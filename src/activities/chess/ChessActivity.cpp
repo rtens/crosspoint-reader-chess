@@ -70,10 +70,12 @@ void ChessActivity::loop() {
     }
 
     if (mappedInput.wasReleased(MappedInputManager::Button::Right)) {
-      int index = loadPuzzleIndex();
-      savePuzzleIndex(index + 1);
-      startPuzzle();
-      requestUpdate();
+      if (puzzleState == Puzzle::SOLVED) {
+        int index = loadPuzzleIndex();
+        savePuzzleIndex(index + 1);
+        startPuzzle();
+        requestUpdate();
+      }
     }
   }
 
