@@ -23,6 +23,8 @@ Debug: python scripts/debugging_monitor.py COM11
 
 ## Ideas
 
+- Flip board when playing black
+
 - Use abstract piece symbols
 
 - Menu item icon
