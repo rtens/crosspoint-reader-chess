@@ -12,8 +12,6 @@ Debug: python scripts/debugging_monitor.py COM11
 
 - Labels for side buttons
 
-- Menu item icon
-
 
 ## Planned
 
@@ -30,16 +28,21 @@ Debug: python scripts/debugging_monitor.py COM11
 
 ## Ideas
 
+- Say if solved without undos
+
 - Redraw before puzzle response
 
 - Flip board when playing black
 
 - Use abstract piece symbols
+  - config file
 
 - Lichess authentication
 
 
 ## Completed
+
+- Menu item icon
 
 - Keep selection at moves piece
 
