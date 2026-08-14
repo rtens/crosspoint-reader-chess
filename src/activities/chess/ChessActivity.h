@@ -47,6 +47,7 @@ class ChessActivity final : public Activity {
   void savePosition();
   string loadPosition();
 
+  void onModeSelected(Mode mode, int level);
   void loadMode();
   void saveMode();
 

@@ -25,7 +25,7 @@ void ChessActivity::onEnter() {
   Activity::onEnter();
 
   loadMode();
-  startPuzzle();
+  onModeSelected(mode, level);
 
   savedOrientation = renderer.getOrientation();
   renderer.setOrientation(GfxRenderer::Orientation::Portrait);
@@ -35,8 +35,22 @@ void ChessActivity::onEnter() {
 string puzzleDifficulty(int level) {
   switch (level) {
     default:
-      return "any";
+      return "normal";
   }
+}
+
+void ChessActivity::onModeSelected(Mode mode, int level) {
+  this->mode = mode;
+  this->level = level;
+
+  header = "Chess";
+
+  if (mode == PUZZLES) {
+    header += " Puzzles";
+    if (level) header += " (" + puzzleDifficulty(level) + ")";
+    startPuzzle();
+  }
+  saveMode();
 }
 
 void ChessActivity::onExit() {
