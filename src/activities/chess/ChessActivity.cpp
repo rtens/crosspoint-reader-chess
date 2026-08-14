@@ -198,8 +198,8 @@ void ChessActivity::render(RenderLock&&) {
   const auto& metrics = UITheme::getInstance().getMetrics();
   const auto pageWidth = renderer.getScreenWidth();
   const auto pageHeight = renderer.getScreenHeight();
-  const int boardSize = pageWidth - 10;
-  const int cellSize = boardSize / 8;
+  const int cellSize = (pageWidth - 10) / 8;
+  const int boardSize = cellSize * 8;
 
   renderer.clearScreen();
 
@@ -322,7 +322,7 @@ void ChessActivity::render(RenderLock&&) {
   renderer.drawCenteredText(UI_10_FONT_ID, statusY, status.c_str());
 
   // Buttons
-  const auto labels = mappedInput.mapLabels("Quit", "Mode", btnL.c_str(), btnR.c_str());
+  const auto labels = mappedInput.mapLabels("Quit", "", btnL.c_str(), btnR.c_str());
   GUI.drawButtonHints(renderer, labels.btn1, labels.btn2, labels.btn3, labels.btn4);
 
   renderer.displayBuffer();

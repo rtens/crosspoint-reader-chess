@@ -10,6 +10,8 @@ Debug: python scripts/debugging_monitor.py COM11
 
 ## Planned
 
+- Labels for side buttons
+
 - Show puzzle hint and next move
 
 - Change mode and level
