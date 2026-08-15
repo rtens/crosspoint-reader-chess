@@ -9,9 +9,13 @@
 
 using namespace std;
 
-enum Mode { OTB, PUZZLES, COMPUTER };
+enum Mode { OTB, PUZZLES, ENGINE };
 
 enum State { SELECT_PIECE, SELECT_MOVE, WAIT, GAME_OVER, IDLE };
+
+struct ChessConfig {
+  string pieceSet = "emoji16";
+};
 
 class ChessActivity final : public Activity {
  private:
@@ -27,6 +31,7 @@ class ChessActivity final : public Activity {
   string btnU = "";
   string btnD = "";
 
+  ChessConfig config;
   Mode mode = PUZZLES;
   int level = 0;
 
@@ -50,6 +55,7 @@ class ChessActivity final : public Activity {
   string loadPosition();
 
   void onModeSelected(Mode mode, int level);
+  void loadConfig();
   void loadMode();
   void saveMode();
 

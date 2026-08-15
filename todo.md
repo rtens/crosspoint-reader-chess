@@ -23,19 +23,26 @@ Debug: python scripts/debugging_monitor.py COM11
 
 ## Ideas
 
+- Build 32 pt emoji font (https://github.com/zakerytclarke/crosspoint-reader-apps/blob/c623c224da1d1a0f8a1b24228408f05026f76166/lib/EpdFont/scripts/convert-built)
+
+- Add letter piece set (black and white)
+
 - Say if solved without undos
 
 - Redraw before puzzle response
 
 - Flip board when playing black
 
-- Use abstract piece symbols
-  - config file
+- Use abstract piece symbols (via config)
 
 - Lichess authentication
 
 
 ## Completed
+
+- Change puzzle difficulty with config
+
+- Put all files in .chess
 
 - Labels for side buttons
 

@@ -21,9 +21,16 @@
 
 using namespace std;
 
+string BASE_PATH = "./.config";
+
 void ChessActivity::onEnter() {
   Activity::onEnter();
 
+  if (!Storage.exists(BASE_PATH.c_str())) {
+    Storage.mkdir(BASE_PATH.c_str());
+  }
+
+  loadConfig();
   loadMode();
   onModeSelected(mode, level);
 
@@ -34,6 +41,14 @@ void ChessActivity::onEnter() {
 
 string puzzleDifficulty(int level) {
   switch (level) {
+    case -2:
+      return "easiest";
+    case -1:
+      return "easier";
+    case 1:
+      return "harder";
+    case 2:
+      return "hardest";
     default:
       return "normal";
   }
@@ -331,11 +346,15 @@ void ChessActivity::render(RenderLock&&) {
         if (piece == (Game::BLACK | Game::KING)) pieceStr = "\u265A";
 
         auto font = NOTOSANS_16_EMOJI_FONT_ID;
+        if (config.pieceSet == "emoji48") {
+          font = NOTOSANS_48_EMOJI_FONT_ID;
+        }
+
         int tW = renderer.getTextWidth(font, pieceStr);
         int tH = renderer.getTextHeight(font);
         int px = cx + (cellSize - tW) / 2;
-        int py = cy + (cellSize - tH) / 2;
-        renderer.drawText(font, px, py - 10, pieceStr, true);
+        int py = cy + (cellSize - tH) / 2 - tH / 3;
+        renderer.drawText(font, px, py, pieceStr, true);
       }
     }
 
@@ -369,8 +388,8 @@ void ChessActivity::render(RenderLock&&) {
   renderer.displayBuffer();
 }
 
-void ChessActivity::loadMode() {
-  HalFile file = Storage.open("/chess_mode.json");
+void ChessActivity::loadConfig() {
+  HalFile file = Storage.open("/.chess/config.json");
   if (!file) return;
 
   JsonDocument doc;
@@ -378,16 +397,48 @@ void ChessActivity::loadMode() {
   file.close();
   if (err) return;
 
-  mode = doc["mode"];
-  level = doc["level"];
+  if (doc["pieceSet"].is<string>()) {
+    config.pieceSet = doc["pieceSet"].as<string>();
+  }
 }
 
-void ChessActivity::saveMode() {
-  auto file = Storage.open("/chess_mode.json", O_WRITE | O_CREAT | O_TRUNC);
+void ChessActivity::loadMode() {
+  HalFile file = Storage.open("/.chess/mode.json");
   if (!file) return;
 
   JsonDocument doc;
-  doc["mode"] = mode;
+  DeserializationError err = deserializeJson(doc, file);
+  file.close();
+  if (err) return;
+
+  if (doc["mode"].is<string>()) {
+    string modeString = doc["mode"];
+    if (modeString == "puzzles") {
+      mode = PUZZLES;
+    } else if (modeString == "otb") {
+      mode = OTB;
+    } else if (modeString == "engine") {
+      mode = ENGINE;
+    }
+  }
+  if (doc["level"].is<int>()) {
+    level = doc["level"];
+  }
+}
+
+void ChessActivity::saveMode() {
+  auto file = Storage.open("/.chess/mode.json", O_WRITE | O_CREAT | O_TRUNC);
+  if (!file) return;
+
+  JsonDocument doc;
+
+  if (mode == OTB) {
+    doc["mode"] = "otb";
+  } else if (mode == PUZZLES) {
+    doc["mode"] = "puzzles";
+  } else if (mode == ENGINE) {
+    doc["mode"] = "engine";
+  }
   doc["level"] = level;
 
   serializeJson(doc, file);
@@ -395,7 +446,7 @@ void ChessActivity::saveMode() {
 }
 
 void ChessActivity::savePosition() {
-  auto file = Storage.open("/chess_position.fen", O_WRITE | O_CREAT | O_TRUNC);
+  auto file = Storage.open("/.chess/position.fen", O_WRITE | O_CREAT | O_TRUNC);
   if (!file) return;
 
   string position = game.fen();
@@ -404,7 +455,7 @@ void ChessActivity::savePosition() {
 }
 
 string ChessActivity::loadPosition() {
-  HalFile file = Storage.open("/chess_position.fen");
+  HalFile file = Storage.open("/.chess/position.fen");
   if (!file) return Game::STARTPOS;
 
   char buffer[file.size()];
@@ -415,7 +466,7 @@ string ChessActivity::loadPosition() {
 }
 
 int ChessActivity::loadPuzzleIndex() {
-  HalFile file = Storage.open("/chess_puzzle_index.json");
+  HalFile file = Storage.open("/.chess/puzzles_index.json");
   if (!file) return 0;
 
   JsonDocument doc;
@@ -429,7 +480,7 @@ int ChessActivity::loadPuzzleIndex() {
 }
 
 void ChessActivity::savePuzzleIndex(int index) {
-  HalFile file = Storage.open("/chess_puzzle_index.json", O_READ | O_WRITE | O_CREAT | O_TRUNC);
+  HalFile file = Storage.open("/.chess/puzzles_index.json", O_READ | O_WRITE | O_CREAT | O_TRUNC);
   if (!file) return;
 
   JsonDocument doc;
@@ -444,7 +495,7 @@ void ChessActivity::savePuzzleIndex(int index) {
 
 void ChessActivity::startPuzzle() {
   string difficulty = puzzleDifficulty(level);
-  string filename = "/chess_puzzles_" + difficulty + ".json";
+  string filename = "/.chess/puzzles_" + difficulty + ".json";
   HalFile file;
 
   if (!Storage.openFileForRead("CHESS", filename, file)) {
