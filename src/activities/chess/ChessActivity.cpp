@@ -565,7 +565,7 @@ void ChessActivity::downloadPuzzles(string filename) {
                            string puzzlesUrl = "https://lichess.org/api/puzzle/batch/mix?nb=50";
 
                            string difficulty = puzzleDifficulty(level);
-                           if (difficulty != "any") {
+                           if (level) {
                              puzzlesUrl += "&difficulty=" + difficulty;
                            }
 
