@@ -466,7 +466,7 @@ string ChessActivity::loadPosition() {
 }
 
 int ChessActivity::loadPuzzleIndex() {
-  HalFile file = Storage.open("/.chess/puzzles_index.json");
+  HalFile file = Storage.open("/.chess/puzzle_index.json");
   if (!file) return 0;
 
   JsonDocument doc;
@@ -480,11 +480,16 @@ int ChessActivity::loadPuzzleIndex() {
 }
 
 void ChessActivity::savePuzzleIndex(int index) {
-  HalFile file = Storage.open("/.chess/puzzles_index.json", O_READ | O_WRITE | O_CREAT | O_TRUNC);
-  if (!file) return;
+  HalFile reading = Storage.open("/.chess/puzzle_index.json");
+  if (!reading) return;
 
   JsonDocument doc;
-  deserializeJson(doc, file);
+  DeserializationError readingErr = deserializeJson(doc, reading);
+  reading.close();
+  if (readingErr) return;
+
+  HalFile file = Storage.open("/.chess/puzzle_index.json", O_WRITE | O_CREAT | O_TRUNC);
+  if (!file) return;
 
   string difficulty = puzzleDifficulty(level);
   doc[difficulty] = index;
