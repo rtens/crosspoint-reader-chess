@@ -18,15 +18,21 @@
 
 ## Ideas
 
-#### Add letter piece set (black and white)
+#### Add letter piece set
+- black and white letters
 
 #### Say if solved without undos
 
 #### Redraw before puzzle response
 
-#### Use abstract piece symbols (via config)
+#### Use abstract piece symbols
+- set in config
 
 #### Lichess authentication
+- [usinga personal token](https://lichess.org/api#description/authentication)
+
+#### Post which puzzles were solved
+- [API](https://lichess.org/api#tag/puzzles/POST/api/puzzle/batch/{angle})
 
 #### Use PGN move notation in status text
 
