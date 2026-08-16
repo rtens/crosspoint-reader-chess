@@ -1,3 +1,65 @@
+# CrossPoint Reader Chess
+
+This is a fork of the excellent [CrossPoint Reader Firmware](https://github.com/crosspoint-reader/crosspoint-reader) with the addition of a chess application for 
+
+  - solving mix [lichess puzzles](https://lichess.org/training) of different difficulties
+  - solving the [lichess daily puzzle](https://lichess.org/training/daily) ([planned](TASKS.md#solve-daily-puzzle))
+  - playing against an engine of different strengths ([planned](TASKS.md#play-against-engine))
+  - playing over the board ([planned](TASKS.md#play-over-the-board))
+
+The app is designed for one-handed operation, using the side buttons for most actions - mostly *down* for changing the selection and *up* for selecting.
+
+It is currently based on the [1.5.0 version of CrossPoint Reader](https://github.com/crosspoint-reader/crosspoint-reader/releases/tag/v1.5.0). I will keep rebasing it on the newest release.
+
+## Puzzles
+
+Puzzles are downloaded in batches of 50 from the [lichess API](https://lichess.org/api#tag/puzzles/GET/api/puzzle/batch/{angle}).
+
+### Puzzle Difficulty
+
+Since there is no GUI for selecting the Puzzle Difficulty yet, it can be set by changing the `level` value in in the file `.chess/mode.json`
+
+- **-2** is *easiest*
+- **-1** is *easier*
+- **0** is *normal*
+- **1** is *harder*
+- **2** is *hardest*
+
+The file looks like this
+
+```
+{
+  "mode":"puzzles",
+  "level":-1
+}
+```
+
+## Configuration
+
+The file `.chess/config.json` can be used to change the piece set. The 16pt version is a bit too small, and the 48pt one is a bit too large. I will see if I can [build a 32pt version](TASKS.md#build-32pt-emoji-font).
+
+```
+{
+  "pieceSet": "emji16"|"emoji48"
+}
+```
+
+## Project Management
+
+Current, planned, completed tasks and ideas are documented [here](TASKS.md).
+
+## Development
+
+Follow the [Development quick-start](https://github.com/crosspoint-reader/crosspoint-reader#development-quick-start).
+
+The most important commands are
+
+- Build: `pio run -e default`
+- Build & Flash: `pio run -t upload`
+- Debug: `python scripts/debugging_monitor.py COM11` (probably with a different COM port)
+- Rebase: `git checkout main; git rebase --onto 1.5.0 1.4.1 main`
+
+
 # CrossPoint Reader
 
 [![Fund contributors](https://img.shields.io/badge/%F0%9F%91%91_Fund_contributors-royalty.dev-BB953A?style=for-the-badge&labelColor=1a1a1a)](https://app.royalty.dev/crosspoint-reader/crosspoint-reader)
