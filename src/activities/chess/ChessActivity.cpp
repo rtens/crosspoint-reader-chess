@@ -141,7 +141,12 @@ void ChessActivity::loop() {
       selected_piece = selected;
       auto from = mine[selected_piece];
       moves = game.moves(from);
-      sort(moves.begin(), moves.end(), [](Move a, Move b) { return a.to < b.to; });
+
+      if (pov == Game::WHITE) {
+        sort(moves.begin(), moves.end(), [](Move a, Move b) { return a.to < b.to; });
+      } else {
+        sort(moves.begin(), moves.end(), [](Move a, Move b) { return a.to > b.to; });
+      }
       moves.insert(moves.begin(), Move{from, from});
 
       state = SELECT_MOVE;
@@ -234,6 +239,12 @@ void ChessActivity::copyPieces() {
       mine.push_back(i);
     }
   }
+
+  if (pov == Game::WHITE) {
+    sort(mine.begin(), mine.end(), [](int a, int b) { return a < b; });
+  } else {
+    sort(mine.begin(), mine.end(), [](int a, int b) { return a > b; });
+  }
 }
 
 void drawSideButton(const GfxRenderer& renderer, string text, int y, bool left = true) {
@@ -304,8 +315,13 @@ void ChessActivity::render(RenderLock&&) {
       int i = (r * 8) + c;
       int cx = boardX + c * cellSize;
       int cy = boardY + r * cellSize;
-      bool darkSquare = (r + c) % 2 == 1;
 
+      if (pov == Game::BLACK) {
+        cx = right - cellSize - (cx - boardX);
+        cy = bottom - cellSize - (cy - boardY);
+      }
+
+      bool darkSquare = (r + c) % 2 == 1;
       if (darkSquare) {
         int h = cellSize / 4;
         for (int d = h; d <= cellSize; d += h) {
@@ -370,8 +386,17 @@ void ChessActivity::render(RenderLock&&) {
     int size = cellSize / 5;
     for (int m = 1; m < moves.size(); m++) {
       int to = moves[m].to;
-      int cx = (to % 8) * cellSize + boardX + (cellSize - size) / 2;
-      int cy = (to / 8) * cellSize + boardY + (cellSize - size) / 2;
+      int cx = boardX + (to % 8) * cellSize;
+      int cy = boardY + (to / 8) * cellSize;
+
+      if (pov == Game::BLACK) {
+        cx = right - cellSize - (cx - boardX);
+        cy = bottom - cellSize - (cy - boardY);
+      }
+
+      cx += (cellSize - size) / 2;
+      cy += (cellSize - size) / 2;
+
       renderer.fillRoundedRect(cx, cy, size, size, size / 2, Color::Black);
       renderer.fillRoundedRect(cx + 2, cy + 2, size - 4, size - 4, (size - 2) / 2, Color::White);
     }
@@ -538,6 +563,7 @@ void ChessActivity::startPuzzle() {
   LOG_DBG("CHESS", "Start puzzle %s", pgn.c_str());
   puzzle.start(pgn, solution);
   puzzleState = Puzzle::RIGHT;
+  pov = game.turn;
   copyPieces();
   last = Move{};
   state = SELECT_PIECE;

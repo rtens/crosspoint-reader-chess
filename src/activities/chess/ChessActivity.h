@@ -37,6 +37,7 @@ class ChessActivity final : public Activity {
 
   State state = SELECT_PIECE;
   int puzzleState = Puzzle::RIGHT;
+  int pov = Game::WHITE;
 
   int selected = 0;
   int selected_piece = 0;

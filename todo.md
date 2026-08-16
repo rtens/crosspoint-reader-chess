@@ -31,14 +31,14 @@ Debug: python scripts/debugging_monitor.py COM11
 
 - Redraw before puzzle response
 
-- Flip board when playing black
-
 - Use abstract piece symbols (via config)
 
 - Lichess authentication
 
 
 ## Completed
+
+- Flip board when playing black
 
 - Change puzzle difficulty with config
 
