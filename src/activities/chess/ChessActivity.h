@@ -14,7 +14,7 @@ enum Mode { OTB, PUZZLES, ENGINE };
 enum State { SELECT_PIECE, SELECT_MOVE, WAIT, GAME_OVER, IDLE };
 
 struct ChessConfig {
-  string pieceSet = "emoji16";
+  string pieceSet = "emoji32";
 };
 
 class ChessActivity final : public Activity {

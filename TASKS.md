@@ -18,9 +18,6 @@
 
 ## Ideas
 
-#### Build 32pt emoji font
-[see here](https://github.com/zakerytclarke/crosspoint-reader-apps/blob/c623c224da1d1a0f8a1b24228408f05026f76166/lib/EpdFont/scripts/convert-built)
-
 #### Add letter piece set (black and white)
 
 #### Say if solved without undos
@@ -31,8 +28,12 @@
 
 #### Lichess authentication
 
+#### Use PGN move notation in status text
+
 
 ## Completed
+
+#### Build 32pt emoji font
 
 #### Flip board when playing black
 

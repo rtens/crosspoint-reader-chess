@@ -101,6 +101,9 @@ EpdFontFamily notosans48EmojiFontFamily(&notosans48EmojiRegularFont, nullptr, nu
 EpdFont notosans16EmojiRegularFont(&notosans_16_emoji);
 EpdFontFamily notosans16EmojiFontFamily(&notosans16EmojiRegularFont, nullptr, nullptr, nullptr);
 
+EpdFont notosans32EmojiRegularFont(&notosans_32_emoji);
+EpdFontFamily notosans32EmojiFontFamily(&notosans32EmojiRegularFont, nullptr, nullptr, nullptr);
+
 #endif  // OMIT_FONTS
 
 EpdFont smallFont(&notosans_8_regular);
@@ -261,6 +264,7 @@ void setupDisplayAndFonts(bool seamless = false) {
   renderer.insertFont(SMALL_FONT_ID, smallFontFamily);
   renderer.insertFont(NOTOSANS_48_EMOJI_FONT_ID, notosans48EmojiFontFamily);
   renderer.insertFont(NOTOSANS_16_EMOJI_FONT_ID, notosans16EmojiFontFamily);
+  renderer.insertFont(NOTOSANS_32_EMOJI_FONT_ID, notosans32EmojiFontFamily);
 
   // Discover and load SD card fonts
   sdFontSystem.begin(renderer);

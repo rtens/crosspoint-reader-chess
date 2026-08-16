@@ -54,6 +54,7 @@ Follow the [Development quick-start](https://github.com/crosspoint-reader/crossp
 
 The most important commands are
 
+- Clone Submodule: `git submodule update --init --recursive`
 - Build: `pio run -e default`
 - Build & Flash: `pio run -t upload`
 - Debug: `python scripts/debugging_monitor.py COM11` (probably with a different COM port)

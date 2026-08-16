@@ -361,9 +361,11 @@ void ChessActivity::render(RenderLock&&) {
         if (piece == (Game::BLACK | Game::QUEEN)) pieceStr = "\u265B";
         if (piece == (Game::BLACK | Game::KING)) pieceStr = "\u265A";
 
-        auto font = NOTOSANS_16_EMOJI_FONT_ID;
+        auto font = NOTOSANS_32_EMOJI_FONT_ID;
         if (config.pieceSet == "emoji48") {
           font = NOTOSANS_48_EMOJI_FONT_ID;
+        } else if (config.pieceSet == "emoji16") {
+          font = NOTOSANS_16_EMOJI_FONT_ID;
         }
 
         int tW = renderer.getTextWidth(font, pieceStr);
@@ -587,6 +589,8 @@ void ChessActivity::downloadPuzzles(string filename) {
                              info = "Could not connect to WiFi";
                              return;
                            }
+
+                           savePuzzleIndex(0);
 
                            string puzzlesUrl = "https://lichess.org/api/puzzle/batch/mix?nb=50";
 
