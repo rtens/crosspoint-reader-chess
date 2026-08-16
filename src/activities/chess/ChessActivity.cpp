@@ -193,7 +193,7 @@ void ChessActivity::make(Move move) {
       btnU = "Select";
       btnD = "Next Piece";
       btnL = "";
-      btnR = "Hint";
+      btnR = "";
 
     } else if (puzzleState == Puzzle::WRONG) {
       state = IDLE;
