@@ -36,11 +36,11 @@ The file looks like this
 
 ## Configuration
 
-The file `.chess/config.json` can be used to change the piece set. The 16pt version is a bit too small, and the 48pt one is a bit too large. I will see if I can [build a 32pt version](TASKS.md#build-32pt-emoji-font).
+The file `.chess/config.json` can be used to change the piece set. Currently you can choose between three sizes of an emoji font.
 
 ```
 {
-  "pieceSet": "emji16"|"emoji48"
+  "pieceSet": "emoji32"|"emoji16"|"emoji48"
 }
 ```
 
