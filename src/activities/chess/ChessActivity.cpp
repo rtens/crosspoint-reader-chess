@@ -13,13 +13,15 @@
 #include <cstring>
 #include <sstream>
 #include <string>
+using namespace std;
 
+#include "./ChessModeSelectionActivity.h"
 #include "activities/network/WifiSelectionActivity.h"
 #include "components/UITheme.h"
 #include "fontIds.h"
 #include "network/HttpDownloader.h"
 
-using namespace std;
+string puzzleDifficulty[6] = {"normal", "Daily", "easier", "harder", "easiest", "hardest"};
 
 string BASE_PATH = "./.config";
 
@@ -39,33 +41,32 @@ void ChessActivity::onEnter() {
   requestUpdate();
 }
 
-string puzzleDifficulty(int level) {
-  switch (level) {
-    case -2:
-      return "easiest";
-    case -1:
-      return "easier";
-    case 1:
-      return "harder";
-    case 2:
-      return "hardest";
-    default:
-      return "normal";
-  }
-}
-
 void ChessActivity::onModeSelected(Mode mode, int level) {
+  game.start("");
+  copyPieces();
+
   this->mode = mode;
   this->level = level;
+  saveMode();
 
   header = "Chess";
 
   if (mode == PUZZLES) {
-    header += " Puzzles";
-    if (level) header += " (" + puzzleDifficulty(level) + ")";
-    startPuzzle();
+    if (level == 1) {
+      header += ": Daily Puzzle";
+      info = "Coming soon";
+    } else {
+      if (level) header += ": " + puzzleDifficulty[level];
+      header += " Puzzles";
+      startPuzzle();
+    }
+  } else if (mode == ENGINE) {
+    char l = level + '0';
+    header += " vs Engine (Level " + string{l} + ")";
+    info = "Coming soon";
+  } else if (mode == OTB) {
+    info = "Coming soon";
   }
-  saveMode();
 }
 
 void ChessActivity::onExit() {
@@ -80,7 +81,14 @@ void ChessActivity::loop() {
   }
 
   if (mappedInput.wasReleased(MappedInputManager::Button::Confirm)) {
-    // Open mode selection activity
+    activityManager.pushActivity(
+        std::make_unique<ChessModeSelectionActivity>(renderer, mappedInput, [this](int modeInt, int level) {
+          Mode mode;
+          if (modeInt == 0) mode = PUZZLES;
+          if (modeInt == 1) mode = ENGINE;
+          if (modeInt == 2) mode = OTB;
+          onModeSelected(mode, level);
+        }));
     return;
   }
 
@@ -418,7 +426,7 @@ void ChessActivity::render(RenderLock&&) {
   renderer.drawCenteredText(UI_10_FONT_ID, infoY, info.c_str());
 
   // Buttons
-  const auto labels = mappedInput.mapLabels("Quit", "", btnL.c_str(), btnR.c_str());
+  const auto labels = mappedInput.mapLabels("Quit", "Mode", btnL.c_str(), btnR.c_str());
   GUI.drawButtonHints(renderer, labels.btn1, labels.btn2, labels.btn3, labels.btn4);
 
   renderer.displayBuffer();
@@ -511,7 +519,7 @@ int ChessActivity::loadPuzzleIndex() {
   file.close();
   if (err) return 0;
 
-  string difficulty = puzzleDifficulty(level);
+  string difficulty = puzzleDifficulty[level];
   if (!doc[difficulty].is<int>()) return 0;
   return doc[difficulty];
 }
@@ -528,7 +536,7 @@ void ChessActivity::savePuzzleIndex(int index) {
   HalFile file = Storage.open("/.chess/puzzle_index.json", O_WRITE | O_CREAT | O_TRUNC);
   if (!file) return;
 
-  string difficulty = puzzleDifficulty(level);
+  string difficulty = puzzleDifficulty[level];
   doc[difficulty] = index;
   serializeJson(doc, file);
 
@@ -536,7 +544,10 @@ void ChessActivity::savePuzzleIndex(int index) {
 }
 
 void ChessActivity::startPuzzle() {
-  string difficulty = puzzleDifficulty(level);
+  info = "Loading puzzle...";
+  requestUpdateAndWait();
+
+  string difficulty = puzzleDifficulty[level];
   string filename = "/.chess/puzzles_" + difficulty + ".json";
   HalFile file;
 
@@ -549,7 +560,7 @@ void ChessActivity::startPuzzle() {
   int index = loadPuzzleIndex();
   LOG_DBG("CHESS", "Index %i", index);
 
-  LOG_DBG("CHESS", "Reading puzzles");
+  LOG_DBG("CHESS", "Reading puzzles %s", filename.c_str());
   JsonDocument doc;
   DeserializationError err = deserializeJson(doc, file);
   file.close();
@@ -610,7 +621,7 @@ void ChessActivity::downloadPuzzles(string filename) {
 
                            string puzzlesUrl = "https://lichess.org/api/puzzle/batch/mix?nb=50";
 
-                           string difficulty = puzzleDifficulty(level);
+                           string difficulty = puzzleDifficulty[level];
                            if (level) {
                              puzzlesUrl += "&difficulty=" + difficulty;
                            }

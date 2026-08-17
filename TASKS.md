@@ -7,8 +7,6 @@
 
 ### v1.0
 
-#### Change mode and level
-
 #### Show puzzle hint and next move
 
 #### Solve daily puzzle
@@ -41,6 +39,8 @@
 
 
 ## Completed
+
+#### Change mode and level
 
 #### Build 32pt emoji font
 

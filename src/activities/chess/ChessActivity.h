@@ -6,6 +6,7 @@
 #include <cstdint>
 
 #include "../Activity.h"
+#include "./ChessModeSelectionActivity.h"
 
 using namespace std;
 
