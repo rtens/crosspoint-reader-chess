@@ -385,7 +385,8 @@ void ChessActivity::render(RenderLock&&) {
 
   // Draw legal moves
   if (state == SELECT_MOVE) {
-    int size = cellSize / 5;
+    int size = cellSize / 4;
+    int s = 2;
     for (int m = 1; m < moves.size(); m++) {
       int to = moves[m].to;
       int cx = boardX + (to % 8) * cellSize;
@@ -399,8 +400,12 @@ void ChessActivity::render(RenderLock&&) {
       cx += (cellSize - size) / 2;
       cy += (cellSize - size) / 2;
 
-      renderer.fillRoundedRect(cx, cy, size, size, size / 2, Color::Black);
-      renderer.fillRoundedRect(cx + 2, cy + 2, size - 4, size - 4, (size - 2) / 2, Color::White);
+      if (game.turn == Game::WHITE) {
+        renderer.fillRoundedRect(cx - s, cy - s, size + s * 2, size + s * 2, (size + s * 2) / 2, Color::Black);
+        renderer.fillRoundedRect(cx, cy, size, size, size / 2, Color::White);
+      } else {
+        renderer.fillRoundedRect(cx, cy, size, size, size / 2, Color::Black);
+      }
     }
   }
 
