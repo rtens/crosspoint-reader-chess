@@ -5,36 +5,39 @@
 
 ## Planned
 
-#### Show puzzle hint and next move
+### v1.0
 
 #### Change mode and level
+
+#### Show puzzle hint and next move
 
 #### Solve daily puzzle
 
 #### Play over the board
 
 #### Play against engine
+- with random moves by engine
 
 
 ## Ideas
 
-#### Add letter piece set
+#### Letter piece set
 - black and white letters
 
-#### Say if solved without undos
+#### Win puzzles
+- if solved without undos
 
 #### Redraw before puzzle response
 
-#### Use abstract piece symbols
-- set in config
+#### Abstract piece symbols
 
 #### Lichess authentication
 - [usinga personal token](https://lichess.org/api#description/authentication)
 
-#### Post which puzzles were solved
-- [API](https://lichess.org/api#tag/puzzles/POST/api/puzzle/batch/{angle})
+#### Update puzzle rating
+- [post won puzzles](https://lichess.org/api#tag/puzzles/POST/api/puzzle/batch/{angle})
 
-#### Use PGN move notation in status text
+#### PGN move notation in status text
 
 
 ## Completed
