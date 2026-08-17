@@ -259,6 +259,7 @@ void drawSideButton(const GfxRenderer& renderer, string text, int y, bool left =
 }
 
 void ChessActivity::render(RenderLock&&) {
+  LOG_DBG("CHESS", "Render start");
   const auto& metrics = UITheme::getInstance().getMetrics();
   const auto pageWidth = renderer.getScreenWidth();
   const auto pageHeight = renderer.getScreenHeight();
@@ -279,6 +280,7 @@ void ChessActivity::render(RenderLock&&) {
   int selected_square = -1;
   int piece_square = -1;
 
+  LOG_DBG("CHESS", "Selected stuff");
   if (mine.size() && state == SELECT_PIECE) {
     selected %= mine.size();
     selected_square = mine[selected];
@@ -306,6 +308,7 @@ void ChessActivity::render(RenderLock&&) {
   drawSideButton(renderer, btnD, statusY - 7, false);
 
   // Draw board squares and pieces
+  LOG_DBG("CHESS", "Render board and pieces");
   for (int r = 0; r < 8; r++) {
     int off = cellSize * r;
     int offY = boardY + off;
@@ -383,6 +386,7 @@ void ChessActivity::render(RenderLock&&) {
   renderer.drawLine(boardX, bottom, right, bottom);
   renderer.drawLine(right, boardY, right, bottom);
 
+  LOG_DBG("CHESS", "Render legal moves");
   // Draw legal moves
   if (state == SELECT_MOVE) {
     int size = cellSize / 4;
@@ -418,6 +422,7 @@ void ChessActivity::render(RenderLock&&) {
   GUI.drawButtonHints(renderer, labels.btn1, labels.btn2, labels.btn3, labels.btn4);
 
   renderer.displayBuffer();
+  LOG_DBG("CHESS", "Render done");
 }
 
 void ChessActivity::loadConfig() {
@@ -536,6 +541,7 @@ void ChessActivity::startPuzzle() {
   HalFile file;
 
   if (!Storage.openFileForRead("CHESS", filename, file)) {
+    LOG_DBG("CHESS", "Cannot open %s - download puzzles", filename.c_str());
     downloadPuzzles(filename);
     return;
   }
@@ -543,6 +549,7 @@ void ChessActivity::startPuzzle() {
   int index = loadPuzzleIndex();
   LOG_DBG("CHESS", "Index %i", index);
 
+  LOG_DBG("CHESS", "Reading puzzles");
   JsonDocument doc;
   DeserializationError err = deserializeJson(doc, file);
   file.close();
@@ -554,10 +561,12 @@ void ChessActivity::startPuzzle() {
   }
 
   if (index >= doc["puzzles"].size()) {
+    LOG_DBG("CHESS", "End of batch - download puzzles");
     downloadPuzzles(filename);
     return;
   }
 
+  LOG_DBG("CHESS", "Parsing puzzzle");
   JsonObject jsonPuzzle = doc["puzzles"][index];
   string pgn = jsonPuzzle["game"]["pgn"];
   JsonArray jsonSolution = jsonPuzzle["puzzle"]["solution"];
@@ -569,6 +578,7 @@ void ChessActivity::startPuzzle() {
 
   LOG_DBG("CHESS", "Start puzzle %s", pgn.c_str());
   puzzle.start(pgn, solution);
+  LOG_DBG("CHESS", "Puzzle started");
   puzzleState = Puzzle::RIGHT;
   pov = game.turn;
   copyPieces();
@@ -583,6 +593,7 @@ void ChessActivity::startPuzzle() {
   stringstream infos;
   infos << "Puzzle " << (index + 1) << "/" << doc["puzzles"].size();
   info = infos.str();
+  LOG_DBG("CHESS", "Done starting puzzle");
 }
 
 void ChessActivity::downloadPuzzles(string filename) {
