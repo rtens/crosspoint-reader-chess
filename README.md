@@ -15,25 +15,6 @@ It is currently based on the [1.5.0 version of CrossPoint Reader](https://github
 
 Puzzles are downloaded in batches of 50 from the [lichess API](https://lichess.org/api#tag/puzzles/GET/api/puzzle/batch/{angle}).
 
-### Puzzle Difficulty
-
-Since there is no GUI for selecting the Puzzle Difficulty yet, it can be set by changing the `level` value in in the file `.chess/mode.json`
-
-- **-2** is *easiest*
-- **-1** is *easier*
-- **0** is *normal*
-- **1** is *harder*
-- **2** is *hardest*
-
-The file looks like this
-
-```
-{
-  "mode":"puzzles",
-  "level":-1
-}
-```
-
 ## Configuration
 
 The file `.chess/config.json` can be used to change the piece set. Currently you can choose between three sizes of an emoji font.
