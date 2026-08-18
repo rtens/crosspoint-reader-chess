@@ -20,15 +20,16 @@ using namespace std;
 #include "components/UITheme.h"
 #include "fontIds.h"
 #include "network/HttpDownloader.h"
+#include "states/Move.h"
+#include "states/Otb.h"
 
 void ChessActivity::onEnter() {
   Activity::onEnter();
 
-  game.start();
   // config = loadConfig();
   // mode = loadMode();
-  // onModeSelected(mode);
   calculateLayoutParams();
+  onModeSelected(ChessMode{ChessModeSelectionActivity::OTB});
 
   savedOrientation = renderer.getOrientation();
   renderer.setOrientation(GfxRenderer::Orientation::Portrait);
@@ -38,6 +39,7 @@ void ChessActivity::onEnter() {
 void ChessActivity::onExit() {
   Activity::onExit();
   renderer.setOrientation(savedOrientation);
+  delete state;
 }
 
 void ChessActivity::loop() {
@@ -48,21 +50,21 @@ void ChessActivity::loop() {
     activityManager.pushActivity(std::make_unique<ChessModeSelectionActivity>(
         renderer, mappedInput, [this](ChessMode mode) { onModeSelected(mode); }));
 
-    // } else if (mappedInput.wasReleased(MappedInputManager::Button::Left)) {
-    //   state = state->left();
-    //   requestUpdate();
+  } else if (mappedInput.wasReleased(MappedInputManager::Button::Left)) {
+    state = state->left();
+    requestUpdate();
 
-    // } else if (mappedInput.wasReleased(MappedInputManager::Button::Right)) {
-    //   state = state->right();
-    //   requestUpdate();
+  } else if (mappedInput.wasReleased(MappedInputManager::Button::Right)) {
+    state = state->right();
+    requestUpdate();
 
-    // } else if (mappedInput.wasReleased(MappedInputManager::Button::Up)) {
-    //   state = state->up();
-    //   requestUpdate();
+  } else if (mappedInput.wasReleased(MappedInputManager::Button::Up)) {
+    state = state->up();
+    requestUpdate();
 
-    // } else if (mappedInput.wasReleased(MappedInputManager::Button::Down)) {
-    //   state = state->down();
-    //   requestUpdate();
+  } else if (mappedInput.wasReleased(MappedInputManager::Button::Down)) {
+    state = state->down();
+    requestUpdate();
   }
 }
 
@@ -78,9 +80,10 @@ void ChessActivity::onModeSelected(ChessMode mode) {
   // } else if (mode == "Play vs Engine") {
   //   state = PlayEngineStart(this, level);
 
-  // } else if (mode == "Play vs Friend") {
-  // state = OtbStart(this);
-  // }
+  // } else
+  if (mode.id == ChessModeSelectionActivity::OTB) {
+    state = new MoveStartState(this, new OtbStartState(this));
+  }
 }
 
 void ChessActivity::calculateLayoutParams() {
@@ -107,7 +110,7 @@ void ChessActivity::render(RenderLock&&) {
   renderStatus();
   renderBoard();
   renderPieces();
-  renderSelection();
+  renderMove();
   renderLastMove();
   renderMoves();
   renderInfo();
@@ -194,6 +197,8 @@ ChessActivity::XY ChessActivity::squareXY(int c, int r) {
   return XY{x, y};
 }
 
+ChessActivity::XY ChessActivity::squareXY(int i) { return squareXY(i % 8, i / 8); }
+
 void ChessActivity::renderPieces() {
   for (int i = 0; i < 64; i++) {
     int piece = game.pieces[i];
@@ -223,7 +228,7 @@ void ChessActivity::renderPieces() {
     int tW = renderer.getTextWidth(font, pieceStr);
     int tH = renderer.getTextHeight(font);
 
-    XY square = squareXY(i % 8, i / 8);
+    XY square = squareXY(i);
     int px = square.x + (cellSize - tW) / 2;
     int py = square.y + (cellSize - tH) / 2 - tH / 3;
 
@@ -231,11 +236,45 @@ void ChessActivity::renderPieces() {
   }
 }
 
-void ChessActivity::renderSelection() {}
+void ChessActivity::renderMove() {
+  if (move.from > -1) {
+    XY square = squareXY(move.from);
+    renderer.drawRect(square.x, square.y, cellSize, cellSize, 4, true);
+  }
 
-void ChessActivity::renderLastMove() {}
+  if (move.to > -1) {
+    XY square = squareXY(move.to);
+    renderer.drawRoundedRect(square.x, square.y, cellSize, cellSize, 4, cellSize / 2, true);
+  }
+}
 
-void ChessActivity::renderMoves() {}
+void ChessActivity::renderLastMove() {
+  if (last.from < 0) return;
+
+  XY from = squareXY(last.from);
+  XY to = squareXY(last.to);
+  renderer.drawRect(from.x, from.y, cellSize, cellSize, 2, true);
+  renderer.drawRoundedRect(to.x, to.y, cellSize, cellSize, 2, cellSize / 2, true);
+}
+
+void ChessActivity::renderMoves() {
+  int size = cellSize / 4;
+  int s = 2;
+
+  for (int m = 0; m < moves.size(); m++) {
+    XY square = squareXY(moves[m].to);
+
+    int cx = square.x + (cellSize - size) / 2;
+    int cy = square.y + (cellSize - size) / 2;
+
+    if (game.turn == Game::WHITE) {
+      renderer.fillRoundedRect(cx - s, cy - s, size + s * 2, size + s * 2, (size + s * 2) / 2, Color::Black);
+      renderer.fillRoundedRect(cx, cy, size, size, size / 2, Color::White);
+    } else {
+      renderer.fillRoundedRect(cx, cy, size, size, size / 2, Color::Black);
+    }
+  }
+}
 
 void ChessActivity::renderInfo() {
   int y = boardY + boardSize + 15;

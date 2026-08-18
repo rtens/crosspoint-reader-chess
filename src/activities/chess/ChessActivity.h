@@ -7,8 +7,8 @@
 using namespace std;
 
 #include "../Activity.h"
-#include "./ChessModeSelectionActivity.h"
-#include "./ChessState.h"
+#include "ChessModeSelectionActivity.h"
+#include "ChessState.h"
 
 class ChessActivity final : public Activity {
  public:
@@ -34,8 +34,9 @@ class ChessActivity final : public Activity {
   string btnUp = "";
   string btnDown = "";
 
-  int selectedPiece = 0;
-  int selectedMove = 0;
+  Move move;
+  Move last;
+  vector<Move> moves;
   int pov = Game::WHITE;
 
   void onEnter() override;
@@ -65,10 +66,11 @@ class ChessActivity final : public Activity {
   void renderStatus();
   void renderBoard();
   void renderPieces();
-  void renderSelection();
+  void renderMove();
   void renderLastMove();
   void renderMoves();
   void renderInfo();
   void renderButtons();
   XY squareXY(int c, int r);
+  XY squareXY(int i);
 };
