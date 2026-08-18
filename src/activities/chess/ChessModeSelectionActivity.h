@@ -7,17 +7,20 @@ using namespace std;
 #include "../Activity.h"
 
 struct ChessMode {
-  enum ID { OTB, PUZZLE_MIX, DAILY_PUZZLE, ENGINE };
-  ID id = PUZZLE_MIX;
-  string name = "Puzzle Mix";
-  string level = "normal";
+  int id;
+  string level = "";
 };
 
 class ChessModeSelectionActivity final : public Activity {
  public:
   explicit ChessModeSelectionActivity(GfxRenderer& renderer, MappedInputManager& mappedInput,
-                                      function<void(int mode, int level)> onModeSelected)
+                                      function<void(ChessMode mode)> onModeSelected)
       : Activity("ChessModeSelection", renderer, mappedInput), onModeSelected(onModeSelected) {}
+
+  static const int PUZZLE_MIX = 0;
+  static const int DAILY_PUZZLE = 1;
+  static const int ENGINE = 2;
+  static const int OTB = 3;
 
   void onEnter() override;
   void onExit() override;
@@ -25,7 +28,7 @@ class ChessModeSelectionActivity final : public Activity {
   void render(RenderLock&&) override;
 
  private:
-  function<void(int mode, int level)> onModeSelected;
+  function<void(ChessMode mode)> onModeSelected;
   enum State { SELECT_MODE, SELECT_LEVEL };
   State state = SELECT_MODE;
   int selectedMode = 0;

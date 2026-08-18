@@ -2,12 +2,12 @@
 
 ChessState::ChessState(ChessActivity* a) { activity = a; }
 
-ChessState ChessState::up() {}
+ChessState* ChessState::up() { return this; }
 
-ChessState ChessState::down() {}
+ChessState* ChessState::down() { return this; }
 
-ChessState ChessState::left() {}
+ChessState* ChessState::left() { return this; }
 
-ChessState ChessState::right() {}
+ChessState* ChessState::right() { return this; }
 
-ChessState ChessState::move(Move move) {}
+ChessState* ChessState::move(Move move) { return this; }

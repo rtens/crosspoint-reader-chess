@@ -21,7 +21,8 @@ using namespace std;
 #include "fontIds.h"
 #include "network/HttpDownloader.h"
 
-vector<vector<string>> modes = {{"Solve Puzzles", "normal", "Daily", "easier", "harder", "easiest", "hardest"},
+vector<vector<string>> modes = {{"Solve Puzzles", "normal", "easier", "harder", "easiest", "hardest"},
+                                {"Solve Daily Puzzle"},
                                 {"Play vs Engine", "random"},
                                 {"Play vs Friend"}};
 
@@ -46,7 +47,7 @@ void ChessModeSelectionActivity::loop() {
     if (modes[selectedMode].size() == 1 || state == SELECT_LEVEL) {
       finish();
       activityManager.requestUpdateAndWait();
-      onModeSelected(selectedMode, selectedLevel);
+      onModeSelected(ChessMode{selectedMode, modes[selectedMode][selectedLevel + 1]});
     } else {
       state = SELECT_LEVEL;
       requestUpdate();

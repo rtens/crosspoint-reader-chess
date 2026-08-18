@@ -1,3 +1,5 @@
+#pragma once
+
 #include <Game.h>
 
 class ChessActivity;
@@ -6,12 +8,12 @@ class ChessState {
  public:
   ChessState(ChessActivity* activity);
 
-  ChessState up();
-  ChessState down();
-  ChessState left();
-  ChessState right();
-  ChessState move(Move move);
+  virtual ChessState* up();
+  virtual ChessState* down();
+  virtual ChessState* left();
+  virtual ChessState* right();
+  virtual ChessState* move(Move move);
 
- private:
+ protected:
   ChessActivity* activity;
 };
