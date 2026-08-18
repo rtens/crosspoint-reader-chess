@@ -6,6 +6,13 @@ using namespace std;
 
 #include "../Activity.h"
 
+struct ChessMode {
+  enum ID { OTB, PUZZLE_MIX, DAILY_PUZZLE, ENGINE };
+  ID id = PUZZLE_MIX;
+  string name = "Puzzle Mix";
+  string level = "normal";
+};
+
 class ChessModeSelectionActivity final : public Activity {
  public:
   explicit ChessModeSelectionActivity(GfxRenderer& renderer, MappedInputManager& mappedInput,
