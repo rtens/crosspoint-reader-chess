@@ -20,7 +20,7 @@ class OtbMoveState : public OtbState {
 
 class OtbStartState : public OtbMoveState {
  public:
-  OtbStartState(ChessActivity* activity);
+  OtbStartState(ChessActivity* activity, bool reset = false);
 };
 
 class OtbMoveMadeState : public OtbState {
