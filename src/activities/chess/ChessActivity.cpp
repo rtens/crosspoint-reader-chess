@@ -27,10 +27,10 @@ using namespace std;
 void ChessActivity::onEnter() {
   Activity::onEnter();
 
-  // config = loadConfig();
-  // mode = loadMode();
+  config = storage.loadConfig();
   calculateLayoutParams();
-  onModeSelected(ChessMode{});
+
+  onModeSelected(storage.loadMode());
 
   savedOrientation = renderer.getOrientation();
   renderer.setOrientation(GfxRenderer::Orientation::Portrait);
@@ -48,8 +48,11 @@ void ChessActivity::loop() {
     onGoHome();
 
   } else if (mappedInput.wasReleased(MappedInputManager::Button::Confirm)) {
-    activityManager.pushActivity(std::make_unique<ChessModeSelectionActivity>(
-        renderer, mappedInput, [this](ChessMode mode) { onModeSelected(mode); }));
+    activityManager.pushActivity(
+        std::make_unique<ChessModeSelectionActivity>(renderer, mappedInput, [this](ChessMode mode) {
+          onModeSelected(mode);
+          storage.saveMode(mode);
+        }));
 
   } else if (mappedInput.wasReleased(MappedInputManager::Button::Left)) {
     state = state->left();
@@ -310,7 +313,7 @@ void ChessActivity::renderMoves() {
 }
 
 void ChessActivity::renderInfo() {
-  LOG_DBG("CHESS", "render Infocmd");
+  LOG_DBG("CHESS", "render Info");
   int y = boardY + boardSize + 15;
   renderer.drawCenteredText(UI_10_FONT_ID, y, infoText.c_str());
 }

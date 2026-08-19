@@ -10,20 +10,28 @@ OtbState::OtbState(ChessActivity* activity) : ChessState(activity) { activity->b
 
 ChessState* OtbState::right() {
   delete this;
-  return new MoveStartState(activity, new OtbStartState(activity));
+  return new MoveStartState(activity, new OtbStartState(activity, true));
 }
 
 ///////////////////// OtbStartState ////////////////////
 
-OtbStartState::OtbStartState(ChessActivity* activity) : OtbMoveState(activity) {
-  activity->game.start();
+OtbStartState::OtbStartState(ChessActivity* activity, bool reset) : OtbMoveState(activity) {
+  string fen = Game::STARTPOS;
+  if (!reset) {
+    fen = activity->storage.loadPosition();
+  }
+
+  activity->game.start(fen);
   activity->move = Move{};
   activity->last = Move{};
   activity->moves = {};
 
   activity->pov = activity->game.turn;
   activity->infoText = "Let's go";
-  activity->btnRight = "";
+
+  if (fen == Game::STARTPOS) {
+    activity->btnRight = "";
+  }
 }
 
 ///////////////////// OtbMoveState ////////////////////
@@ -32,6 +40,7 @@ OtbMoveState::OtbMoveState(ChessActivity* activity) : OtbState(activity) { activ
 
 ChessState* OtbMoveState::move(Move move) {
   activity->game.make(move);
+  activity->storage.savePosition(activity->game.fen());
   activity->last = move;
 
   if (activity->game.isOver()) {
@@ -46,6 +55,7 @@ ChessState* OtbMoveState::move(Move move) {
 ///////////////////// OtbMoveMadeState ////////////////////
 
 OtbMoveMadeState::OtbMoveMadeState(ChessActivity* activity) : OtbState(activity) {
+  activity->infoText = "";
   activity->btnUp = "Undo";
   activity->btnDown = "Next turn";
 }

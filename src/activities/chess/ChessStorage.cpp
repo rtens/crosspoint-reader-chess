@@ -1,117 +1,143 @@
+#include "ChessStorage.h"
 
+#include <string>
+using namespace std;
 
-// string BASE_PATH = "./.config";
+#include <Arduino.h>
+#include <ArduinoJson.h>
+#include <Game.h>
+#include <Logging.h>
 
-// if (!Storage.exists(BASE_PATH.c_str())) {
-//   Storage.mkdir(BASE_PATH.c_str());
-// }
+#include "ChessModeSelectionActivity.h"
 
-// void ChessActivity::loadConfig() {
-//   HalFile file = Storage.open("/.chess/config.json");
-//   if (!file) return;
+const string BASE_PATH = "/.chess";
+const string CONFIG_FILE = BASE_PATH + "/config.json";
+const string MODE_FILE = BASE_PATH + "/mode.json";
+const string POSITION_FILE = BASE_PATH + "/position.fen";
+const string INDEX_FILE = BASE_PATH + "/puzzle_index.json";
 
-//   JsonDocument doc;
-//   DeserializationError err = deserializeJson(doc, file);
-//   file.close();
-//   if (err) return;
+ChessStorage::ChessStorage() {
+  if (!Storage.exists(BASE_PATH.c_str())) {
+    Storage.mkdir(BASE_PATH.c_str());
+  }
+}
 
-//   if (doc["pieceSet"].is<string>()) {
-//     config.pieceSet = doc["pieceSet"].as<string>();
-//   }
-// }
+ChessConfig ChessStorage::loadConfig() {
+  LOG_DBG("CHESS", "Loading config");
+  ChessConfig config;
 
-// void ChessActivity::loadMode() {
-//   HalFile file = Storage.open("/.chess/mode.json");
-//   if (!file) return;
+  HalFile file = Storage.open(CONFIG_FILE.c_str());
+  if (!file) return config;
 
-//   JsonDocument doc;
-//   DeserializationError err = deserializeJson(doc, file);
-//   file.close();
-//   if (err) return;
+  JsonDocument doc;
+  DeserializationError err = deserializeJson(doc, file);
+  file.close();
+  if (err) return config;
 
-//   if (doc["mode"].is<string>()) {
-//     string modeString = doc["mode"];
-//     if (modeString == "puzzles") {
-//       mode = PUZZLES;
-//     } else if (modeString == "otb") {
-//       mode = OTB;
-//     } else if (modeString == "engine") {
-//       mode = ENGINE;
-//     }
-//   }
-//   if (doc["level"].is<int>()) {
-//     level = doc["level"];
-//   }
-// }
+  if (doc["pieceSet"].is<string>()) {
+    config.pieceSet = doc["pieceSet"].as<string>();
+    LOG_DBG("CHESS", "Config pieceSet: %s", config.pieceSet.c_str());
+  }
+  LOG_DBG("CHESS", "Loaded config");
+  return config;
+}
 
-// void ChessActivity::saveMode() {
-//   auto file = Storage.open("/.chess/mode.json", O_WRITE | O_CREAT | O_TRUNC);
-//   if (!file) return;
+void ChessStorage::saveMode(ChessMode mode) {
+  LOG_DBG("CHESS", "Saving mode %i %s", mode.id, mode.level.c_str());
+  auto file = Storage.open(MODE_FILE.c_str(), O_WRITE | O_CREAT | O_TRUNC);
+  if (!file) return;
 
-//   JsonDocument doc;
+  JsonDocument doc;
+  doc["id"] = mode.id;
+  doc["level"] = mode.level;
 
-//   if (mode == OTB) {
-//     doc["mode"] = "otb";
-//   } else if (mode == PUZZLES) {
-//     doc["mode"] = "puzzles";
-//   } else if (mode == ENGINE) {
-//     doc["mode"] = "engine";
-//   }
-//   doc["level"] = level;
+  serializeJson(doc, file);
+  file.close();
+  LOG_DBG("CHESS", "Saved mode");
+}
 
-//   serializeJson(doc, file);
-//   file.close();
-// }
+ChessMode ChessStorage::loadMode() {
+  LOG_DBG("CHESS", "Loading mode");
+  ChessMode mode{ChessModeSelectionActivity::OTB};
 
-// void ChessActivity::savePosition() {
-//   auto file = Storage.open("/.chess/position.fen", O_WRITE | O_CREAT | O_TRUNC);
-//   if (!file) return;
+  HalFile file = Storage.open(MODE_FILE.c_str());
+  if (!file) return mode;
 
-//   string position = game.fen();
-//   file.write(position.c_str(), position.size());
-//   file.close();
-// }
+  JsonDocument doc;
+  DeserializationError err = deserializeJson(doc, file);
+  file.close();
+  if (err) return mode;
 
-// string ChessActivity::loadPosition() {
-//   HalFile file = Storage.open("/.chess/position.fen");
-//   if (!file) return Game::STARTPOS;
+  if (doc["id"].is<int>()) {
+    mode.id = doc["id"].as<int>();
+    LOG_DBG("CHESS", "Mode ID: %i", mode.id);
+  }
+  if (doc["level"].is<string>()) {
+    mode.level = doc["level"].as<string>();
+    LOG_DBG("CHESS", "Mode level: %s", mode.level.c_str());
+  }
+  LOG_DBG("CHESS", "Loaded mode");
+  return mode;
+}
 
-//   char buffer[file.size()];
-//   file.read(buffer, file.size());
-//   file.close();
+void ChessStorage::savePosition(string fen) {
+  LOG_DBG("CHESS", "Saving positoin %s", fen.c_str());
+  auto file = Storage.open(POSITION_FILE.c_str(), O_WRITE | O_CREAT | O_TRUNC);
+  if (!file) return;
 
-//   return string(buffer);
-// }
+  file.write(fen.c_str(), fen.size());
+  file.close();
+  LOG_DBG("CHESS", "Saved position");
+}
 
-// int ChessActivity::loadPuzzleIndex() {
-//   HalFile file = Storage.open("/.chess/puzzle_index.json");
-//   if (!file) return 0;
+string ChessStorage::loadPosition() {
+  LOG_DBG("CHESS", "Loading position");
+  HalFile file = Storage.open(POSITION_FILE.c_str());
+  if (!file) return Game::STARTPOS;
 
-//   JsonDocument doc;
-//   DeserializationError err = deserializeJson(doc, file);
-//   file.close();
-//   if (err) return 0;
+  char buffer[file.size()];
+  file.read(buffer, file.size());
+  file.close();
 
-//   string difficulty = puzzleDifficulty[level];
-//   if (!doc[difficulty].is<int>()) return 0;
-//   return doc[difficulty];
-// }
+  LOG_DBG("CHESS", "Loaded position %s", string(buffer).c_str());
+  return string(buffer);
+}
 
-// void ChessActivity::savePuzzleIndex(int index) {
-//   HalFile reading = Storage.open("/.chess/puzzle_index.json");
-//   if (!reading) return;
+void ChessStorage::savePuzzleIndex(string level, int index) {
+  LOG_DBG("CHESS", "Saving puzzle index %s %i", level.c_str(), index);
+  HalFile reading = Storage.open(INDEX_FILE.c_str());
+  if (!reading) return;
 
-//   JsonDocument doc;
-//   DeserializationError readingErr = deserializeJson(doc, reading);
-//   reading.close();
-//   if (readingErr) return;
+  JsonDocument doc;
+  DeserializationError readingErr = deserializeJson(doc, reading);
+  reading.close();
+  if (readingErr) return;
 
-//   HalFile file = Storage.open("/.chess/puzzle_index.json", O_WRITE | O_CREAT | O_TRUNC);
-//   if (!file) return;
+  HalFile file = Storage.open(INDEX_FILE.c_str(), O_WRITE | O_CREAT | O_TRUNC);
+  if (!file) return;
 
-//   string difficulty = puzzleDifficulty[level];
-//   doc[difficulty] = index;
-//   serializeJson(doc, file);
+  doc[level] = index;
+  serializeJson(doc, file);
 
-//   file.close();
-// }
+  file.close();
+  LOG_DBG("CHESS", "Saved puzzle index");
+}
+
+int ChessStorage::loadPuzzleIndex(string level) {
+  LOG_DBG("CHESS", "Loading puzzle index %s", level.c_str());
+  HalFile file = Storage.open(INDEX_FILE.c_str());
+  if (!file) return 0;
+
+  JsonDocument doc;
+  DeserializationError err = deserializeJson(doc, file);
+  file.close();
+  if (err) return 0;
+
+  if (doc[level].is<int>()) {
+    int index = doc[level];
+    LOG_DBG("CHESS", "Loaded puzzle index %i", index);
+    return index;
+  }
+
+  return 0;
+}

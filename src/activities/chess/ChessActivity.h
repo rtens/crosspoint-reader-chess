@@ -9,19 +9,17 @@ using namespace std;
 #include "../Activity.h"
 #include "ChessModeSelectionActivity.h"
 #include "ChessState.h"
+#include "ChessStorage.h"
 
 class ChessActivity final : public Activity {
  public:
-  struct Config {
-    string pieceSet = "emoji32";
-  };
-
   explicit ChessActivity(GfxRenderer& renderer, MappedInputManager& mappedInput)
       : Activity("Chess", renderer, mappedInput), game(), puzzle(&game) {}
 
   Game game;
   Puzzle puzzle;
-  Config config;
+  ChessConfig config;
+  ChessStorage storage;
 
   ChessState* state = 0;
 

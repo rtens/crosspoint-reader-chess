@@ -5,9 +5,9 @@
 #### Play over the board
 - [X] Use state machine
 - [X] Build OTB states
+- [X] Rebuild persistence
+- [X] Persist OTB position
 - [ ] Rebuild Puzzle Mix states
-- [ ] Rebuild persistence
-- [ ] Persist OTB board
 
 
 ## Planned
