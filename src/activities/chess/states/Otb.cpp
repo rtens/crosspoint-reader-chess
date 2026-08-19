@@ -19,6 +19,8 @@ OtbStartState::OtbStartState(ChessActivity* activity) : OtbMoveState(activity) {
   activity->game.start();
   activity->move = Move{};
   activity->last = Move{};
+  activity->moves = {};
+
   activity->pov = activity->game.turn;
   activity->infoText = "Let's go";
 }

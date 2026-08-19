@@ -16,6 +16,7 @@
 using namespace std;
 
 #include "./ChessModeSelectionActivity.h"
+#include "ChessState.h"
 #include "activities/network/WifiSelectionActivity.h"
 #include "components/UITheme.h"
 #include "fontIds.h"
@@ -68,25 +69,48 @@ void ChessActivity::loop() {
   }
 }
 
+class ComingSoonState : public ChessState {
+ public:
+  ComingSoonState(ChessActivity* activity) : ChessState(activity) {
+    activity->statusText = "";
+    activity->infoText = "Coming soon";
+    activity->btnLeft = "";
+    activity->btnRight = "";
+    activity->btnUp = "";
+    activity->btnDown = "";
+
+    activity->game.start("");
+    activity->move = Move{};
+    activity->last = Move{};
+    activity->moves = {};
+  }
+};
+
 void ChessActivity::onModeSelected(ChessMode mode) {
   LOG_DBG("CHESS", "on Mode Selected %i %s", mode.id, mode.level.c_str());
   // saveMode(mode);
 
   if (state) delete state;
 
-  // if (mode.id == ChessMode::PUZZLE_MIX) {
-  // state = PuzzleMixStart(this, level);
+  if (mode.id == ChessModeSelectionActivity::PUZZLE_MIX) {
+    headerText = "Chess Puzzles";
+    if (mode.level != "normal") {
+      headerText = "Chess: " + mode.level + " Puzzles";
+    }
+    state = new ComingSoonState(this);
 
-  // } else if (mode == "Daily Puzzle") {
-  //   state = DailyPuzzleStart(this);
+  } else if (mode.id == ChessModeSelectionActivity::DAILY_PUZZLE) {
+    headerText = "Chess: Daily Puzzle";
+    state = new ComingSoonState(this);
 
-  // } else if (mode == "Play vs Engine") {
-  //   state = PlayEngineStart(this, level);
+  } else if (mode.id == ChessModeSelectionActivity::ENGINE) {
+    headerText = "Chess vs " + mode.level;
+    state = new ComingSoonState(this);
 
-  // } else {
-  headerText = "Chess";
-  state = new MoveStartState(this, new OtbStartState(this));
-  // }
+  } else {
+    headerText = "Chess";
+    state = new MoveStartState(this, new OtbStartState(this));
+  }
   requestUpdate();
 }
 
