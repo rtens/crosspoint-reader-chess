@@ -2,16 +2,22 @@
 
 ## Current
 
+#### Play over the board
+
 
 ## Planned
 
 ### v1.0
 
+#### Fix hatching alignment
+- [reported](https://www.reddit.com/r/xteinkereader/comments/1vr5o7t/comment/p4hyavx/)
+
+#### Add more info why puzzle download failed
+- [see comment](https://www.reddit.com/r/xteinkereader/comments/1vr5o7t/comment/p4hyavx/)
+
 #### Show puzzle hint and next move
 
 #### Solve daily puzzle
-
-#### Play over the board
 
 #### Play against engine
 - with random moves by engine
@@ -36,6 +42,9 @@
 - [post won puzzles](https://lichess.org/api#tag/puzzles/POST/api/puzzle/batch/{angle})
 
 #### PGN move notation in status text
+
+#### Port to CrossInk
+- [requested](https://www.reddit.com/r/xteinkereader/comments/1vr5o7t/comment/p4ghnvm/)
 
 
 ## Completed
