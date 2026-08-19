@@ -11,16 +11,16 @@ class OtbState : public ChessState {
   ChessState* right() override;
 };
 
-class OtbStartState : public OtbMoveState {
- public:
-  OtbStartState(ChessActivity* activity);
-};
-
 class OtbMoveState : public OtbState {
  public:
   OtbMoveState(ChessActivity* activity);
 
   ChessState* move(Move move) override;
+};
+
+class OtbStartState : public OtbMoveState {
+ public:
+  OtbStartState(ChessActivity* activity);
 };
 
 class OtbMoveMadeState : public OtbState {

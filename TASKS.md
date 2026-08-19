@@ -3,6 +3,11 @@
 ## Current
 
 #### Play over the board
+- [X] Use state machine
+- [X] Build OTB states
+- [ ] Rebuild Puzzle Mix states
+- [ ] Rebuild persistence
+- [ ] Persist OTB board
 
 
 ## Planned
