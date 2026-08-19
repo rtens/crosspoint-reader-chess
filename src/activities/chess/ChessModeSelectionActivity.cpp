@@ -47,13 +47,12 @@ void ChessModeSelectionActivity::loop() {
   if (mappedInput.wasReleased(MappedInputManager::Button::Confirm)) {
     LOG_DBG("CHESS", "Confirm state %i mode %i level %i", state, selectedMode, selectedLevel);
     if (modes[selectedMode].size() == 1 || state == SELECT_LEVEL) {
-      finish();
-      activityManager.requestUpdateAndWait();
       string level = "";
       if (selectedLevel + 1 < modes[selectedMode].size()) {
         level = modes[selectedMode][selectedLevel + 1];
       }
       onModeSelected(ChessMode{selectedMode, level});
+      finish();
     } else {
       state = SELECT_LEVEL;
       requestUpdate();
