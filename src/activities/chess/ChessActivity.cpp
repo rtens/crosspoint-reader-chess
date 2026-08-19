@@ -29,7 +29,7 @@ void ChessActivity::onEnter() {
   // config = loadConfig();
   // mode = loadMode();
   calculateLayoutParams();
-  onModeSelected(ChessMode{ChessModeSelectionActivity::OTB});
+  onModeSelected(ChessMode{});
 
   savedOrientation = renderer.getOrientation();
   renderer.setOrientation(GfxRenderer::Orientation::Portrait);
@@ -69,7 +69,10 @@ void ChessActivity::loop() {
 }
 
 void ChessActivity::onModeSelected(ChessMode mode) {
+  LOG_DBG("CHESS", "on Mode Selected %i %s", mode.id, mode.level.c_str());
   // saveMode(mode);
+
+  if (state) delete state;
 
   // if (mode.id == ChessMode::PUZZLE_MIX) {
   // state = PuzzleMixStart(this, level);
@@ -80,10 +83,11 @@ void ChessActivity::onModeSelected(ChessMode mode) {
   // } else if (mode == "Play vs Engine") {
   //   state = PlayEngineStart(this, level);
 
-  // } else
-  if (mode.id == ChessModeSelectionActivity::OTB) {
-    state = new MoveStartState(this, new OtbStartState(this));
-  }
+  // } else {
+  headerText = "Chess";
+  state = new MoveStartState(this, new OtbStartState(this));
+  // }
+  requestUpdate();
 }
 
 void ChessActivity::calculateLayoutParams() {
@@ -151,6 +155,7 @@ void ChessActivity::renderStatus() {
 }
 
 void ChessActivity::renderBoard() {
+  LOG_DBG("CHESS", "render Board");
   const int right = boardX + boardSize;
   const int bottom = boardY + boardSize;
 
@@ -200,6 +205,7 @@ ChessActivity::XY ChessActivity::squareXY(int c, int r) {
 ChessActivity::XY ChessActivity::squareXY(int i) { return squareXY(i % 8, i / 8); }
 
 void ChessActivity::renderPieces() {
+  LOG_DBG("CHESS", "render Pieces");
   for (int i = 0; i < 64; i++) {
     int piece = game.pieces[i];
     if (piece == Game::EMPTY) continue;
@@ -237,6 +243,7 @@ void ChessActivity::renderPieces() {
 }
 
 void ChessActivity::renderMove() {
+  LOG_DBG("CHESS", "render Move");
   if (move.from > -1) {
     XY square = squareXY(move.from);
     renderer.drawRect(square.x, square.y, cellSize, cellSize, 4, true);
@@ -249,6 +256,7 @@ void ChessActivity::renderMove() {
 }
 
 void ChessActivity::renderLastMove() {
+  LOG_DBG("CHESS", "render last Move");
   if (last.from < 0) return;
 
   XY from = squareXY(last.from);
@@ -258,6 +266,7 @@ void ChessActivity::renderLastMove() {
 }
 
 void ChessActivity::renderMoves() {
+  LOG_DBG("CHESS", "render Moves");
   int size = cellSize / 4;
   int s = 2;
 
@@ -277,6 +286,7 @@ void ChessActivity::renderMoves() {
 }
 
 void ChessActivity::renderInfo() {
+  LOG_DBG("CHESS", "render Infocmd");
   int y = boardY + boardSize + 15;
   renderer.drawCenteredText(UI_10_FONT_ID, y, infoText.c_str());
 }

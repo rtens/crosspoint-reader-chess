@@ -21,10 +21,9 @@ class ChessActivity final : public Activity {
 
   Game game;
   Puzzle puzzle;
-
   Config config;
 
-  ChessState* state;
+  ChessState* state = 0;
 
   string headerText = "Chess";
   string statusText = "";

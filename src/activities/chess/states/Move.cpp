@@ -1,9 +1,12 @@
 #include "Move.h"
 
 #include <Game.h>
+#include <Logging.h>
 
 #include "../ChessActivity.h"
 #include "../ChessState.h"
+
+///////////////////// MoveState ////////////////////
 
 MoveState::MoveState(ChessActivity* activity, ChessState* super) : ChessState(activity) { this->super = super; }
 
@@ -14,8 +17,9 @@ ChessState* MoveState::right() { return super->right(); }
 ///////////////////// MoveStartState ////////////////////
 
 MoveStartState::MoveStartState(ChessActivity* activity, ChessState* super) : MoveState(activity, super) {
+  LOG_DBG("CHESS", "Init MoveStartState");
   activity->btnUp = "";
-  activity->btnDown = "First Piece";
+  activity->btnDown = "Select Piece";
   activity->move = Move{};
 
   if (activity->game.turn == Game::WHITE) {
@@ -33,7 +37,8 @@ ChessState* MoveStartState::down() {
 ///////////////////// MoveFromState ////////////////////
 
 MoveFromState::MoveFromState(ChessActivity* activity, ChessState* super) : MoveState(activity, super) {
-  activity->btnUp = "Select";
+  LOG_DBG("CHESS", "Init MoveFromState");
+  activity->btnUp = "Show Moves";
   activity->btnDown = "Next Piece";
 
   for (int i = 0; i < 64; i++) {
@@ -47,7 +52,15 @@ MoveFromState::MoveFromState(ChessActivity* activity, ChessState* super) : MoveS
     sort(pieceSquares.begin(), pieceSquares.end(), [](int a, int b) { return a > b; });
   }
 
+  for (int i = 0; i < pieceSquares.size(); i++) {
+    if (activity->move.from == pieceSquares[i]) {
+      selectedPiece = i;
+      break;
+    }
+  }
+
   onSelectionChanged();
+  LOG_DBG("CHESS", "Done init MoveFromState");
 }
 
 ChessState* MoveFromState::up() {
@@ -70,6 +83,7 @@ void MoveFromState::onSelectionChanged() {
 ///////////////////// MoveToState ////////////////////
 
 MoveToState::MoveToState(ChessActivity* activity, ChessState* super) : MoveState(activity, super) {
+  LOG_DBG("CHESS", "Init MoveToState");
   activity->btnUp = "Make Move";
   activity->btnDown = "Next Move";
 
@@ -80,7 +94,9 @@ MoveToState::MoveToState(ChessActivity* activity, ChessState* super) : MoveState
   } else {
     sort(activity->moves.begin(), activity->moves.end(), [](Move a, Move b) { return a.to > b.to; });
   }
+
   onSelectionChanged();
+  LOG_DBG("CHESS", "Done init MoveToState");
 }
 
 ChessState* MoveToState::up() {
@@ -114,9 +130,11 @@ void MoveToState::onSelectionChanged() {
 ///////////////////// MoveCancelState ////////////////////
 
 MoveCancelState::MoveCancelState(ChessActivity* activity, ChessState* super) : MoveToState(activity, super) {
+  LOG_DBG("CHESS", "Init MoveCancelState");
   activity->btnUp = "Cancel";
   activity->statusText = "Cancel";
   activity->move.to = activity->move.from;
+  LOG_DBG("CHESS", "Done init MoveCancelState");
 }
 
 ChessState* MoveCancelState::up() {
