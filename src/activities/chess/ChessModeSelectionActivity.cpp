@@ -47,7 +47,11 @@ void ChessModeSelectionActivity::loop() {
     if (modes[selectedMode].size() == 1 || state == SELECT_LEVEL) {
       finish();
       activityManager.requestUpdateAndWait();
-      onModeSelected(ChessMode{selectedMode, modes[selectedMode][selectedLevel + 1]});
+      string level = "";
+      if (selectedLevel + 1 < modes[selectedMode].size()) {
+        level = modes[selectedMode][selectedLevel + 1];
+      }
+      onModeSelected(ChessMode{selectedMode, level});
     } else {
       state = SELECT_LEVEL;
       requestUpdate();
