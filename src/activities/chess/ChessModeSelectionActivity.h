@@ -17,10 +17,10 @@ class ChessModeSelectionActivity final : public Activity {
                                       function<void(ChessMode mode)> onModeSelected)
       : Activity("ChessModeSelection", renderer, mappedInput), onModeSelected(onModeSelected) {}
 
-  static const int PUZZLE_MIX = 0;
-  static const int DAILY_PUZZLE = 1;
-  static const int ENGINE = 2;
-  static const int OTB = 3;
+  static const int OTB = 0;
+  static const int ENGINE = 1;
+  static const int PUZZLE_MIX = 2;
+  static const int DAILY_PUZZLE = 3;
 
   void onEnter() override;
   void onExit() override;
