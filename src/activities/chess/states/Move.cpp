@@ -75,6 +75,8 @@ ChessState* MoveFromState::down() {
 }
 
 void MoveFromState::onSelectionChanged() {
+  if (pieceSquares.size() == 0) return;
+
   selectedPiece %= pieceSquares.size();
   activity->move = Move{pieceSquares[selectedPiece]};
   activity->statusText = Game::print(activity->move.from);
@@ -132,8 +134,14 @@ void MoveToState::onSelectionChanged() {
 MoveCancelState::MoveCancelState(ChessActivity* activity, ChessState* super) : MoveToState(activity, super) {
   LOG_DBG("CHESS", "Init MoveCancelState");
   activity->btnUp = "Cancel";
-  activity->statusText = "Cancel";
+  activity->statusText = "Move " + Game::print(activity->move.from);
   activity->move.to = activity->move.from;
+
+  if (activity->moves.size() == 0) {
+    activity->statusText = "No legal moves";
+    activity->btnDown = "";
+  }
+
   LOG_DBG("CHESS", "Done init MoveCancelState");
 }
 
@@ -144,6 +152,10 @@ ChessState* MoveCancelState::up() {
 }
 
 ChessState* MoveCancelState::down() {
+  if (activity->moves.size() == 0) {
+    return this;
+  }
+
   delete this;
   return new MoveToState(activity, super);
 }
