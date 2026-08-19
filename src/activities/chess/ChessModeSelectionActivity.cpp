@@ -21,10 +21,12 @@ using namespace std;
 #include "fontIds.h"
 #include "network/HttpDownloader.h"
 
-vector<vector<string>> modes = {{"Solve Puzzles", "normal", "easier", "harder", "easiest", "hardest"},
-                                {"Solve Daily Puzzle"},
-                                {"Play vs Engine", "random"},
-                                {"Play vs Friend"}};
+vector<vector<string>> modes = {
+    {"Play vs Friend"},
+    {"Play vs Engine", "Random"},
+    {"Solve Puzzles", "normal", "easier", "harder", "easiest", "hardest"},
+    {"Solve Daily Puzzle"},
+};
 
 void ChessModeSelectionActivity::onEnter() {
   Activity::onEnter();
