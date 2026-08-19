@@ -23,6 +23,7 @@ using namespace std;
 #include "network/HttpDownloader.h"
 #include "states/Move.h"
 #include "states/Otb.h"
+#include "states/Puzzle.h"
 
 void ChessActivity::onEnter() {
   Activity::onEnter();
@@ -91,7 +92,7 @@ class ComingSoonState : public ChessState {
 
 void ChessActivity::onModeSelected(ChessMode mode) {
   LOG_DBG("CHESS", "on Mode Selected %i %s", mode.id, mode.level.c_str());
-  // saveMode(mode);
+  level = mode.level;
 
   if (state) delete state;
 
@@ -100,7 +101,7 @@ void ChessActivity::onModeSelected(ChessMode mode) {
     if (mode.level != "normal") {
       headerText = "Chess: " + mode.level + " Puzzles";
     }
-    state = new ComingSoonState(this);
+    state = new MoveStartState(this, new PuzzleStartState(this));
 
   } else if (mode.id == ChessModeSelectionActivity::DAILY_PUZZLE) {
     headerText = "Chess: Daily Puzzle";
@@ -321,4 +322,17 @@ void ChessActivity::renderInfo() {
 void ChessActivity::renderButtons() {
   const auto labels = mappedInput.mapLabels("Quit", "Mode", btnLeft.c_str(), btnRight.c_str());
   GUI.drawButtonHints(renderer, labels.btn1, labels.btn2, labels.btn3, labels.btn4);
+}
+
+void ChessActivity::startWifi(function<void()> then) {
+  WiFi.mode(WIFI_STA);
+  startActivityForResult(std::make_unique<WifiSelectionActivity>(renderer, mappedInput),
+                         [this, then](const ActivityResult& wifi) {
+                           if (wifi.isCancelled) {
+                             infoText = "Could not connect to WiFi";
+                             return;
+                           }
+
+                           then();
+                         });
 }

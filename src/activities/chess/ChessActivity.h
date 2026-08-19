@@ -22,6 +22,7 @@ class ChessActivity final : public Activity {
   ChessStorage storage;
 
   ChessState* state = 0;
+  string level = "";
 
   string headerText = "Chess";
   string statusText = "";
@@ -40,6 +41,8 @@ class ChessActivity final : public Activity {
   void onExit() override;
   void loop() override;
   void render(RenderLock&&) override;
+
+  void startWifi(function<void()> then);
 
  private:
   struct XY {

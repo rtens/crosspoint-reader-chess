@@ -38,6 +38,10 @@ ChessConfig ChessStorage::loadConfig() {
     config.pieceSet = doc["pieceSet"].as<string>();
     LOG_DBG("CHESS", "Config pieceSet: %s", config.pieceSet.c_str());
   }
+  if (doc["puzzlesUrl"].is<string>()) {
+    config.puzzlesUrl = doc["puzzlesUrl"].as<string>();
+    LOG_DBG("CHESS", "Config puzzlesUrl: %s", config.puzzlesUrl.c_str());
+  }
   LOG_DBG("CHESS", "Loaded config");
   return config;
 }
@@ -104,14 +108,14 @@ string ChessStorage::loadPosition() {
 }
 
 void ChessStorage::savePuzzleIndex(string level, int index) {
-  LOG_DBG("CHESS", "Saving puzzle index %s %i", level.c_str(), index);
-  HalFile reading = Storage.open(INDEX_FILE.c_str());
-  if (!reading) return;
-
+  LOG_DBG("CHESS", "Saving puzzle index %s %i in %s", level.c_str(), index, INDEX_FILE.c_str());
   JsonDocument doc;
-  DeserializationError readingErr = deserializeJson(doc, reading);
-  reading.close();
-  if (readingErr) return;
+
+  HalFile reading = Storage.open(INDEX_FILE.c_str());
+  if (reading) {
+    deserializeJson(doc, reading);
+    reading.close();
+  }
 
   HalFile file = Storage.open(INDEX_FILE.c_str(), O_WRITE | O_CREAT | O_TRUNC);
   if (!file) return;
@@ -140,4 +144,27 @@ int ChessStorage::loadPuzzleIndex(string level) {
   }
 
   return 0;
+}
+
+string ChessStorage::puzzleFilename(string level) { return BASE_PATH + "/puzzles_" + level + ".json"; }
+
+bool ChessStorage::loadPuzzles(string level, JsonDocument& doc) {
+  string filename = puzzleFilename(level);
+  LOG_DBG("CHESS", "Reading puzzles %s", filename.c_str());
+
+  HalFile file;
+  if (!Storage.openFileForRead("CHESS", filename, file)) {
+    LOG_DBG("CHESS", "Cannot open %s", filename.c_str());
+    return false;
+  }
+
+  DeserializationError err = deserializeJson(doc, file);
+  file.close();
+
+  if (err) {
+    LOG_ERR("CHESS", "Parsing failed %s", err.c_str());
+    return false;
+  }
+
+  return true;
 }
