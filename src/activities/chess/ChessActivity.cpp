@@ -20,10 +20,10 @@ using namespace std;
 #include "activities/network/WifiSelectionActivity.h"
 #include "components/UITheme.h"
 #include "fontIds.h"
+#include "modes/Move.h"
+#include "modes/Otb.h"
+#include "modes/Puzzle.h"
 #include "network/HttpDownloader.h"
-#include "states/Move.h"
-#include "states/Otb.h"
-#include "states/Puzzle.h"
 
 void ChessActivity::onEnter() {
   Activity::onEnter();

@@ -7,7 +7,10 @@
 - [X] Build OTB states
 - [X] Rebuild persistence
 - [X] Persist OTB position
-- [ ] Rebuild Puzzle Mix states
+- [X] Rebuild Puzzle Mix states
+- [ ] Puzzle download after mode selection doesnt work
+- [ ] Puzzle start crashes
+- [ ] Clear board before puzzle start
 
 
 ## Planned
