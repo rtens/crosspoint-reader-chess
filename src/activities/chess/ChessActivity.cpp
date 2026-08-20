@@ -15,8 +15,9 @@
 #include <string>
 using namespace std;
 
-#include "./ChessModeSelectionActivity.h"
+#include "ChessModeSelectionActivity.h"
 #include "ChessState.h"
+#include "activities/ActivityResult.h"
 #include "activities/network/WifiSelectionActivity.h"
 #include "components/UITheme.h"
 #include "fontIds.h"
@@ -49,11 +50,14 @@ void ChessActivity::loop() {
     onGoHome();
 
   } else if (mappedInput.wasReleased(MappedInputManager::Button::Confirm)) {
-    activityManager.pushActivity(
-        std::make_unique<ChessModeSelectionActivity>(renderer, mappedInput, [this](ChessMode mode) {
-          onModeSelected(mode);
-          storage.saveMode(mode);
-        }));
+    startActivityForResult(make_unique<ChessModeSelectionActivity>(renderer, mappedInput),
+                           [this](const ActivityResult& result) {
+                             if (result.isCancelled) return;
+                             ChessModeResult modeResult = get<ChessModeResult>(result.data);
+                             ChessMode mode{modeResult.id, modeResult.level};
+                             onModeSelected(mode);
+                             storage.saveMode(mode);
+                           });
 
   } else if (mappedInput.wasReleased(MappedInputManager::Button::Left)) {
     state = state->left();
@@ -326,7 +330,7 @@ void ChessActivity::renderButtons() {
 
 void ChessActivity::startWifi(function<void()> then) {
   WiFi.mode(WIFI_STA);
-  startActivityForResult(std::make_unique<WifiSelectionActivity>(renderer, mappedInput),
+  startActivityForResult(make_unique<WifiSelectionActivity>(renderer, mappedInput),
                          [this, then](const ActivityResult& wifi) {
                            if (wifi.isCancelled) {
                              infoText = "Could not connect to WiFi";

@@ -2,16 +2,6 @@
 
 ## Current
 
-#### Play over the board
-- [X] Use state machine
-- [X] Build OTB states
-- [X] Rebuild persistence
-- [X] Persist OTB position
-- [X] Rebuild Puzzle Mix states
-- [ ] Puzzle download after mode selection doesnt work
-- [ ] Puzzle start crashes
-- [ ] Clear board before puzzle start
-
 
 ## Planned
 
@@ -22,6 +12,8 @@
 
 #### Add more info why puzzle download failed
 - [see comment](https://www.reddit.com/r/xteinkereader/comments/1vr5o7t/comment/p4hyavx/)
+
+#### Solve puzzle start crashes
 
 #### Show puzzle hint and next move
 
@@ -56,6 +48,9 @@
 
 
 ## Completed
+
+#### Play over the board
+- Use state machine for OTB and Puzzle Mix
 
 #### Change mode and level
 

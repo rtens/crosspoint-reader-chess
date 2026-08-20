@@ -19,7 +19,16 @@ PuzzleState::PuzzleState(ChessActivity* activity) : ChessState(activity) {}
 
 ////////////// PuzzleStartState //////////////
 
-PuzzleStartState::PuzzleStartState(ChessActivity* activity) : PuzzleRightState(activity) { start(); }
+PuzzleStartState::PuzzleStartState(ChessActivity* activity) : PuzzleRightState(activity) {
+  activity->game.start("");
+  activity->move = Move{};
+  activity->last = Move{};
+  activity->moves = {};
+  activity->statusText = "";
+  activity->btnUp = "";
+  activity->btnDown = "";
+  start();
+}
 
 void PuzzleStartState::start(bool downloadIfNeeded) {
   activity->infoText = "Loading puzzle...";
