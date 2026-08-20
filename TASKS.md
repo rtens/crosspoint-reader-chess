@@ -13,8 +13,6 @@
 #### Add more info why puzzle download failed
 - [see comment](https://www.reddit.com/r/xteinkereader/comments/1vr5o7t/comment/p4hyavx/)
 
-#### Solve puzzle start crashes
-
 #### Show puzzle hint and next move
 
 #### Solve daily puzzle
@@ -48,6 +46,10 @@
 
 
 ## Completed
+
+#### Solve puzzle start crashes
+- Probably caused by memory issues
+- Replaced all ints of millipawn to uint8s
 
 #### Play over the board
 - Use state machine for OTB and Puzzle Mix
