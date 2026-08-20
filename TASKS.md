@@ -7,8 +7,6 @@
 
 ### v1.0
 
-#### Show puzzle hint and next move
-
 #### Solve daily puzzle
 
 #### Play against engine
@@ -40,6 +38,12 @@
 
 
 ## Completed
+
+#### Show puzzle hint and next move
+
+#### Add button to reset puzzle
+
+#### Add button to go to previous puzzle
 
 #### Add more info why puzzle download failed
 - [see comment](https://www.reddit.com/r/xteinkereader/comments/1vr5o7t/comment/p4hyavx/)

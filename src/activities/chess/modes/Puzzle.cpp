@@ -32,10 +32,21 @@ PuzzleStartState::PuzzleStartState(ChessActivity* activity) : PuzzleRightState(a
   activity->statusText = "";
   activity->btnUp = "";
   activity->btnDown = "";
+  activity->btnLeft = "";
 
   if (!start()) {
     download([this]() { start(); });
   }
+}
+
+ChessState* PuzzleStartState::left() {
+  int index = activity->storage.loadPuzzleIndex(activity->level);
+  if (index == 0) return this;
+
+  activity->storage.savePuzzleIndex(activity->level, index - 1);
+
+  delete this;
+  return new MoveStartState(activity, new PuzzleStartState(activity));
 }
 
 bool PuzzleStartState::start() {
@@ -61,6 +72,8 @@ bool PuzzleStartState::start() {
     return false;
   }
 
+  if (index > 0) activity->btnLeft = "Prev";
+
   LOG_DBG("CHESS", "Parsing puzzzle");
   JsonObject jsonPuzzle = doc["puzzles"][index];
   string pgn = jsonPuzzle["game"]["pgn"];
@@ -75,11 +88,6 @@ bool PuzzleStartState::start() {
   activity->puzzle.start(pgn, solution);
   activity->pov = activity->game.turn;
   LOG_DBG("CHESS", "Puzzle started");
-
-  activity->move = Move{};
-  activity->last = Move{};
-  activity->btnLeft = "";
-  activity->btnRight = "";
 
   stringstream infos;
   infos << "Puzzle " << (index + 1) << "/" << doc["puzzles"].size();
@@ -137,7 +145,21 @@ string PuzzleStartState::getDownloadError(string url) {
 
 //////////////// PuzzleRightState //////////////
 
-PuzzleRightState::PuzzleRightState(ChessActivity* activity) : PuzzleState(activity) { activity->infoText = "Go on"; }
+PuzzleRightState::PuzzleRightState(ChessActivity* activity) : PuzzleState(activity) {
+  activity->btnLeft = "Reset";
+  activity->btnRight = "Hint";
+  activity->infoText = "Go on";
+}
+
+ChessState* PuzzleRightState::left() {
+  delete this;
+  return new MoveStartState(activity, new PuzzleStartState(activity));
+}
+
+ChessState* PuzzleRightState::right() {
+  delete this;
+  return new MoveFromState(activity, new PuzzleHintState(activity));
+}
 
 ChessState* PuzzleRightState::move(Move move) {
   int result = activity->puzzle.propose(move);
@@ -159,20 +181,59 @@ ChessState* PuzzleRightState::move(Move move) {
   }
 }
 
+////////////// PuzzleHintState ////////////////
+
+PuzzleHintState::PuzzleHintState(ChessActivity* activity) : PuzzleRightState(activity) {
+  activity->btnRight = "Show";
+  activity->infoText = "Try moving this piece";
+
+  Move hint = activity->puzzle.hint();
+  activity->move = Move{hint.from};
+}
+
+ChessState* PuzzleHintState::right() {
+  delete this;
+  return new PuzzleShowState(activity);
+}
+
+////////////// PuzzleShowState ////////////////
+
+PuzzleShowState::PuzzleShowState(ChessActivity* activity) : PuzzleRightState(activity) {
+  activity->move = activity->puzzle.hint();
+
+  activity->btnUp = "";
+  activity->btnDown = "";
+  activity->btnRight = "Make";
+  activity->infoText = "This is the best move";
+}
+
+ChessState* PuzzleShowState::right() {
+  Move move = activity->move;
+  activity->move = Move{};
+
+  return this->move(move);
+}
+
 ////////////// PuzzleWrongState ///////////////
 
 PuzzleWrongState::PuzzleWrongState(ChessActivity* activity) : PuzzleState(activity) {
   activity->infoText = "Not quite";
   activity->btnUp = "Undo";
+  activity->btnLeft = "Undo";
   activity->btnDown = "";
+  activity->btnRight = "";
 }
 
 ChessState* PuzzleWrongState::up() {
   activity->puzzle.undo();
   activity->move = activity->last;
   activity->last = Move{};
+
+  delete this;
   return new MoveFromState(activity, new PuzzleCorrectionState(activity));
 }
+
+ChessState* PuzzleWrongState::left() { return up(); }
 
 ///////////// PuzzleCorrectionState ///////////////
 
@@ -186,6 +247,7 @@ PuzzleSolvedState::PuzzleSolvedState(ChessActivity* activity) : PuzzleState(acti
   activity->infoText = "Good job!";
   activity->btnUp = "Again";
   activity->btnDown = "Next Puzzle";
+  activity->btnRight = "Next";
 
   if (activity->game.isOver() == Game::CHECKMATE) {
     activity->statusText = "CHECKMATE!";
@@ -204,3 +266,5 @@ ChessState* PuzzleSolvedState::down() {
   delete this;
   return new MoveStartState(activity, new PuzzleStartState(activity));
 }
+
+ChessState* PuzzleSolvedState::right() { return down(); }

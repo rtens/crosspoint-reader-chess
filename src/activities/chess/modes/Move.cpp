@@ -10,9 +10,15 @@
 
 MoveState::MoveState(ChessActivity* activity, ChessState* super) : ChessState(activity) { this->super = super; }
 
-ChessState* MoveState::left() { return super->left(); }
+ChessState* MoveState::left() {
+  delete this;
+  return super->left();
+}
 
-ChessState* MoveState::right() { return super->right(); }
+ChessState* MoveState::right() {
+  delete this;
+  return super->right();
+}
 
 ///////////////////// MoveStartState ////////////////////
 
@@ -21,6 +27,7 @@ MoveStartState::MoveStartState(ChessActivity* activity, ChessState* super) : Mov
   activity->btnUp = "";
   activity->btnDown = "Select Piece";
   activity->move = Move{};
+  activity->moves.clear();
 
   if (activity->game.turn == Game::WHITE) {
     activity->statusText = "White to move";
@@ -38,6 +45,7 @@ ChessState* MoveStartState::down() {
 
 MoveFromState::MoveFromState(ChessActivity* activity, ChessState* super) : MoveState(activity, super) {
   LOG_DBG("CHESS", "Init MoveFromState");
+  activity->moves.clear();
   activity->btnUp = "Show Moves";
   activity->btnDown = "Next Piece";
 
@@ -78,7 +86,7 @@ void MoveFromState::onSelectionChanged() {
   if (pieceSquares.size() == 0) return;
 
   selectedPiece %= pieceSquares.size();
-  activity->move = Move{pieceSquares[selectedPiece]};
+  activity->move = Move{static_cast<uint8_t>(pieceSquares[selectedPiece])};
   activity->statusText = Game::print(activity->move.from);
 }
 
@@ -105,6 +113,7 @@ ChessState* MoveToState::up() {
   Move move = activity->move;
   activity->move = Move{};
   activity->moves = {};
+
   delete this;
   return super->move(move);
 }
