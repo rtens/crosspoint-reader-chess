@@ -193,17 +193,8 @@ void ChessActivity::renderBoard() {
 
   for (int r = 0; r < 8; r++) {
     for (int c = 0; c < 8; c++) {
-      XY square = squareXY(c, r);
-
-      bool darkSquare = (r + c) % 2 == 1;
-      if (darkSquare) {
-        int h = cellSize / 4;
-        for (int d = h; d <= cellSize; d += h) {
-          renderer.drawLine(square.x + d, square.y, square.x, square.y + d);
-        }
-        for (int d = h; d < cellSize - 1; d += h) {
-          renderer.drawLine(square.x + cellSize - d, square.y + cellSize, square.x + cellSize, square.y + cellSize - d);
-        }
+      if ((r + c) % 2) {
+        renderDarkSquare(c, r);
       }
     }
 
@@ -217,6 +208,18 @@ void ChessActivity::renderBoard() {
 
   renderer.drawLine(boardX, bottom, right, bottom);
   renderer.drawLine(right, boardY, right, bottom);
+}
+
+void ChessActivity::renderDarkSquare(int c, int r) {
+  XY s = squareXY(c, r);
+  int cs = cellSize;
+  int h = cs / 4;
+
+  renderer.drawLine(s.x, s.y + cs, s.x + cs, s.y);
+  for (int d = h; d < cs - h / 2; d += h) {
+    renderer.drawLine(s.x, s.y + cs - d, s.x + cs - d, s.y);
+    renderer.drawLine(s.x + d, s.y + cs, s.x + cs, s.y + d);
+  }
 }
 
 ChessActivity::XY ChessActivity::squareXY(int c, int r) {
