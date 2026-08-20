@@ -7,9 +7,6 @@
 
 ### v1.0
 
-#### Fix hatching alignment
-- [reported](https://www.reddit.com/r/xteinkereader/comments/1vr5o7t/comment/p4hyavx/)
-
 #### Add more info why puzzle download failed
 - [see comment](https://www.reddit.com/r/xteinkereader/comments/1vr5o7t/comment/p4hyavx/)
 
@@ -46,6 +43,9 @@
 
 
 ## Completed
+
+#### Fix hatching alignment
+- [reported](https://www.reddit.com/r/xteinkereader/comments/1vr5o7t/comment/p4hyavx/)
 
 #### Solve puzzle start crashes
 - Probably caused by memory issues

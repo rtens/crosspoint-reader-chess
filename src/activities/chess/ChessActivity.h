@@ -65,6 +65,7 @@ class ChessActivity final : public Activity {
   void renderSideButton(string text, bool left = true);
   void renderStatus();
   void renderBoard();
+  void renderDarkSquare(int c, int r);
   void renderPieces();
   void renderMove();
   void renderLastMove();
