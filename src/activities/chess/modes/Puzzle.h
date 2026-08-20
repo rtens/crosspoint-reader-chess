@@ -25,6 +25,7 @@ class PuzzleStartState : public PuzzleRightState {
  private:
   bool start();
   void download(function<void()> then);
+  string getDownloadError(string url);
 };
 
 class PuzzleWrongState : public PuzzleState {
