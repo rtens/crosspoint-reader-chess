@@ -16,6 +16,7 @@
 #include <string>
 using namespace std;
 
+#include "activities/ActivityResult.h"
 #include "activities/network/WifiSelectionActivity.h"
 #include "components/UITheme.h"
 #include "fontIds.h"
@@ -40,6 +41,9 @@ void ChessModeSelectionActivity::onExit() { Activity::onExit(); }
 
 void ChessModeSelectionActivity::loop() {
   if (mappedInput.wasReleased(MappedInputManager::Button::Back)) {
+    ActivityResult result;
+    result.isCancelled = true;
+    setResult(std::move(result));
     finish();
     return;
   }
@@ -51,7 +55,8 @@ void ChessModeSelectionActivity::loop() {
       if (selectedLevel + 1 < modes[selectedMode].size()) {
         level = modes[selectedMode][selectedLevel + 1];
       }
-      onModeSelected(ChessMode{selectedMode, level});
+
+      setResult(ChessModeResult{selectedMode, level});
       finish();
     } else {
       state = SELECT_LEVEL;

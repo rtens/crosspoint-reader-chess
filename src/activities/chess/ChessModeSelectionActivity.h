@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstdint>
-#include <functional>
 using namespace std;
 
 #include "../Activity.h"
@@ -13,9 +12,8 @@ struct ChessMode {
 
 class ChessModeSelectionActivity final : public Activity {
  public:
-  explicit ChessModeSelectionActivity(GfxRenderer& renderer, MappedInputManager& mappedInput,
-                                      function<void(ChessMode mode)> onModeSelected)
-      : Activity("ChessModeSelection", renderer, mappedInput), onModeSelected(onModeSelected) {}
+  explicit ChessModeSelectionActivity(GfxRenderer& renderer, MappedInputManager& mappedInput)
+      : Activity("ChessModeSelection", renderer, mappedInput) {}
 
   static const int OTB = 0;
   static const int ENGINE = 1;
@@ -28,7 +26,6 @@ class ChessModeSelectionActivity final : public Activity {
   void render(RenderLock&&) override;
 
  private:
-  function<void(ChessMode mode)> onModeSelected;
   enum State { SELECT_MODE, SELECT_LEVEL };
   State state = SELECT_MODE;
   int selectedMode = 0;
