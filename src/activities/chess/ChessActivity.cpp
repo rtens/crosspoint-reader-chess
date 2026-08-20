@@ -276,12 +276,12 @@ void ChessActivity::renderPieces() {
 
 void ChessActivity::renderMove() {
   LOG_DBG("CHESS", "render Move");
-  if (move.from > -1) {
+  if (move.from != Game::NOWHERE) {
     XY square = squareXY(move.from);
     renderer.drawRect(square.x, square.y, cellSize, cellSize, 4, true);
   }
 
-  if (move.to > -1) {
+  if (move.to != Game::NOWHERE) {
     XY square = squareXY(move.to);
     renderer.drawRoundedRect(square.x, square.y, cellSize, cellSize, 4, cellSize / 2, true);
   }
@@ -289,7 +289,7 @@ void ChessActivity::renderMove() {
 
 void ChessActivity::renderLastMove() {
   LOG_DBG("CHESS", "render last Move");
-  if (last.from < 0) return;
+  if (last.from == Game::NOWHERE) return;
 
   XY from = squareXY(last.from);
   XY to = squareXY(last.to);

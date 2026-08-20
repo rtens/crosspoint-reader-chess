@@ -2,6 +2,8 @@
 
 #include <Game.h>
 
+#include <functional>
+
 #include "../ChessState.h"
 
 class PuzzleState : public ChessState {
@@ -21,8 +23,8 @@ class PuzzleStartState : public PuzzleRightState {
   PuzzleStartState(ChessActivity* activity);
 
  private:
-  void start(bool downloadIfNeeded = true);
-  void download();
+  bool start();
+  void download(function<void()> then);
 };
 
 class PuzzleWrongState : public PuzzleState {

@@ -5,6 +5,7 @@
 #include <Logging.h>
 #include <WiFi.h>
 
+#include <functional>
 #include <sstream>
 using namespace std;
 
@@ -27,21 +28,24 @@ PuzzleStartState::PuzzleStartState(ChessActivity* activity) : PuzzleRightState(a
   activity->statusText = "";
   activity->btnUp = "";
   activity->btnDown = "";
-  start();
+
+  if (!start()) {
+    download([this]() { start(); });
+  }
 }
 
-void PuzzleStartState::start(bool downloadIfNeeded) {
+bool PuzzleStartState::start() {
   activity->infoText = "Loading puzzle...";
   activity->requestUpdateAndWait();
 
   string level = activity->level;
-  LOG_DBG("CHESS", "Start puzzle %s downloadIfNeeded %i", level.c_str(), downloadIfNeeded);
+  LOG_DBG("CHESS", "Start puzzle %s", level.c_str());
 
   JsonDocument doc;
   if (!activity->storage.loadPuzzles(level, doc)) {
     LOG_DBG("CHESS", "Could not load puzzles %s", level.c_str());
-    if (downloadIfNeeded) download();
-    return;
+    activity->infoText = "No puzzles downloaded";
+    return false;
   }
 
   int index = activity->storage.loadPuzzleIndex(level);
@@ -49,8 +53,8 @@ void PuzzleStartState::start(bool downloadIfNeeded) {
 
   if (index >= doc["puzzles"].size()) {
     LOG_DBG("CHESS", "End of batch %s (%i >= %i)", level.c_str(), index, doc["puzzles"].size());
-    if (downloadIfNeeded) download();
-    return;
+    activity->infoText = "End of batch";
+    return false;
   }
 
   LOG_DBG("CHESS", "Parsing puzzzle");
@@ -77,10 +81,13 @@ void PuzzleStartState::start(bool downloadIfNeeded) {
   infos << "Puzzle " << (index + 1) << "/" << doc["puzzles"].size();
   activity->infoText = infos.str();
   LOG_DBG("CHESS", "Done starting puzzle");
+
+  return true;
 }
 
-void PuzzleStartState::download() {
-  activity->startWifi([this]() {
+void PuzzleStartState::download(function<void()> then) {
+  activity->infoText = "Downloading puzzles...";
+  activity->startWifi([this, then]() {
     string level = activity->level;
     activity->storage.savePuzzleIndex(level, 0);
 
@@ -88,7 +95,7 @@ void PuzzleStartState::download() {
 
     LOG_DBG("CHESS", "GET %s", puzzlesUrl.c_str());
     string filename = activity->storage.puzzleFilename(level);
-    auto result = HttpDownloader::downloadToFile(puzzlesUrl, filename, nullptr);
+    auto result = HttpDownloader::downloadToFile(puzzlesUrl, filename);
 
     if (result != HttpDownloader::OK) {
       LOG_ERR("CHESS", "Download failed %i", result);
@@ -96,7 +103,7 @@ void PuzzleStartState::download() {
       return;
     }
 
-    start(false);
+    then();
   });
 }
 
