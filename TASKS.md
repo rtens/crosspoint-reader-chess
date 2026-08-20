@@ -7,9 +7,6 @@
 
 ### v1.0
 
-#### Add more info why puzzle download failed
-- [see comment](https://www.reddit.com/r/xteinkereader/comments/1vr5o7t/comment/p4hyavx/)
-
 #### Show puzzle hint and next move
 
 #### Solve daily puzzle
@@ -43,6 +40,9 @@
 
 
 ## Completed
+
+#### Add more info why puzzle download failed
+- [see comment](https://www.reddit.com/r/xteinkereader/comments/1vr5o7t/comment/p4hyavx/)
 
 #### Fix hatching alignment
 - [reported](https://www.reddit.com/r/xteinkereader/comments/1vr5o7t/comment/p4hyavx/)

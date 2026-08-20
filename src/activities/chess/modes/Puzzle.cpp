@@ -5,6 +5,10 @@
 #include <Logging.h>
 #include <WiFi.h>
 
+#if defined(FREEINK_NET_WOLFSSL)
+#include <SecureHttpClient.h>
+#endif
+
 #include <functional>
 #include <sstream>
 using namespace std;
@@ -97,14 +101,38 @@ void PuzzleStartState::download(function<void()> then) {
     string filename = activity->storage.puzzleFilename(level);
     auto result = HttpDownloader::downloadToFile(puzzlesUrl, filename);
 
-    if (result != HttpDownloader::OK) {
+    if (result == HttpDownloader::FILE_ERROR) {
+      activity->infoText = "Could not write puzzles file";
+      return;
+    }
+    if (result == HttpDownloader::HTTP_ERROR) {
       LOG_ERR("CHESS", "Download failed %i", result);
-      activity->infoText = "Could not download puzzles";
+      activity->infoText = "Download failed: " + getDownloadError(puzzlesUrl);
+      return;
+    }
+    if (result != HttpDownloader::OK) {
+      activity->infoText = "Download failed";
       return;
     }
 
     then();
   });
+}
+
+string PuzzleStartState::getDownloadError(string url) {
+#if defined(FREEINK_NET_WOLFSSL)
+  freeink::SecureHttpClient http;
+  http.setUserAgent("CrossPoint-ESP32-" CROSSPOINT_VERSION);
+  http.setTimeout(60000);
+  http.setInsecure();
+
+  if (!http.begin(url)) return "Bad URL: " + url;
+  const int status = http.GET();
+  if (http.aborted()) return "Aborted";
+  return "Got status " + to_string(status);
+#else
+  return "Unknown error";
+#endif
 }
 
 //////////////// PuzzleRightState //////////////
