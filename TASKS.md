@@ -8,6 +8,9 @@
 
 ## Ideas
 
+#### Undo vs engine
+- allow via config
+
 #### Letter piece set
 - black and white letters
 
