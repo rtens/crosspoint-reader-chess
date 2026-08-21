@@ -48,6 +48,7 @@ EngineRunningState::EngineRunningState(ChessActivity* activity, bool reset) : En
 
 ChessState* EngineRunningState::move(Move move) {
   activity->game.make(move);
+  activity->last = move;
 
   if (activity->game.isOver()) {
     delete this;
@@ -67,6 +68,7 @@ ChessState* EngineRunningState::move(Move move) {
   }
 
   activity->storage.savePosition(activity->game.fen());
+  activity->movesSinceRefresh += 2;
 
   return new MoveStartState(activity, this);
 }

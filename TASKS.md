@@ -33,6 +33,8 @@
 
 ## Completed
 
+#### Refresh display after number of moves
+
 #### Redraw before puzzle response
 
 #### Play against engine

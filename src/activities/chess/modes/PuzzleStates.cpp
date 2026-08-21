@@ -25,6 +25,7 @@ PuzzleState::PuzzleState(ChessActivity* activity) : ChessState(activity) {}
 ////////////// PuzzleStartState //////////////
 
 PuzzleStartState::PuzzleStartState(ChessActivity* activity) : PuzzleRightState(activity) {
+  activity->movesSinceRefresh += 5;
   activity->game.start("");
   activity->move = Move{};
   activity->last = Move{};
@@ -208,6 +209,7 @@ ChessState* PuzzleRightState::move(Move move) {
     activity->requestUpdateAndWait();
     activity->puzzle.respond();
     activity->last = activity->puzzle.last;
+    activity->movesSinceRefresh += 2;
 
     delete this;
     return new MoveStartState(activity, new PuzzleRightState(activity));

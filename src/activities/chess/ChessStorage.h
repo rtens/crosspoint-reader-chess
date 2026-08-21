@@ -8,7 +8,8 @@ using namespace std;
 #include "ChessModeSelectionActivity.h"
 
 struct ChessConfig {
-  string pieceSet = "emoji32";
+  int movesUntilRefresh = 20;
+  string pieceSet = "default";
   std::map<string, string> puzzleUrls = {
       {"normal", "https://lichess.org/api/puzzle/batch/mix?nb=50"},
       {"easier", "https://lichess.org/api/puzzle/batch/mix?nb=50&difficulty=easier"},
