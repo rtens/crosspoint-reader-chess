@@ -23,20 +23,27 @@ ChessState* EngineState::right() {
 EngineRunningState::EngineRunningState(ChessActivity* activity, bool reset) : EngineState(activity) {
   activity->btnLeft = "";
 
-  activity->game.start(reset ? Game::STARTPOS : activity->storage.loadPosition());
   activity->move = Move{};
   activity->last = Move{};
   activity->moves.clear();
 
-  srand(time(0));
-  activity->pov = (rand() % 2) ? Game::WHITE : Game::BLACK;
+  if (reset) {
+    activity->infoText = "Good luck";
+    activity->game.start(Game::STARTPOS);
 
-  if (activity->pov == Game::BLACK) {
-    activity->last = activity->engine.respond();
-    activity->game.make(activity->last);
+    srand(time(0));
+    activity->pov = (rand() % 2) ? Game::WHITE : Game::BLACK;
+
+    if (activity->pov == Game::BLACK) {
+      activity->last = activity->engine.respond();
+      activity->game.make(activity->last);
+    }
+
+  } else {
+    activity->infoText = "Your turn";
+    activity->game.start(activity->storage.loadPosition());
+    activity->pov = activity->game.turn;
   }
-
-  activity->infoText = "Good luck";
 }
 
 ChessState* EngineRunningState::move(Move move) {
