@@ -1,4 +1,4 @@
-#include "Puzzle.h"
+#include "PuzzleStates.h"
 
 #include <ArduinoJson.h>
 #include <Game.h>
@@ -14,7 +14,7 @@
 using namespace std;
 
 #include "../ChessActivity.h"
-#include "Move.h"
+#include "MoveStates.h"
 #include "activities/network/WifiSelectionActivity.h"
 #include "network/HttpDownloader.h"
 
