@@ -34,6 +34,10 @@ ChessConfig ChessStorage::loadConfig() {
   file.close();
   if (err) return config;
 
+  if (doc["movesUntilRefresh"].is<int>()) {
+    config.movesUntilRefresh = doc["movesUntilRefresh"].as<int>();
+    LOG_DBG("CHESS", "Config movesUntilRefresh: %i", config.movesUntilRefresh);
+  }
   if (doc["pieceSet"].is<string>()) {
     config.pieceSet = doc["pieceSet"].as<string>();
     LOG_DBG("CHESS", "Config pieceSet: %s", config.pieceSet.c_str());

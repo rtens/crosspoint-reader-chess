@@ -49,6 +49,8 @@ ChessState* OtbMoveState::move(Move move) {
     return new OtbOverState(activity);
   }
 
+  activity->movesSinceRefresh++;
+
   delete this;
   return new OtbMoveMadeState(activity);
 }

@@ -137,7 +137,13 @@ void ChessActivity::render(RenderLock&&) {
   renderInfo();
   renderButtons();
 
-  renderer.displayBuffer();
+  if (movesSinceRefresh >= config.movesUntilRefresh) {
+    movesSinceRefresh = 0;
+    renderer.displayBuffer(HalDisplay::HALF_REFRESH);
+  } else {
+    renderer.displayBuffer();
+  }
+
   LOG_DBG("CHESS", "Render done");
 }
 
@@ -245,9 +251,9 @@ void ChessActivity::renderPieces() {
     if (piece == (Game::BLACK | Game::KING)) pieceStr = "\u265A";
 
     auto font = NOTOSANS_32_EMOJI_FONT_ID;
-    if (config.pieceSet == "emoji48") {
+    if (config.pieceSet == "large") {
       font = NOTOSANS_48_EMOJI_FONT_ID;
-    } else if (config.pieceSet == "emoji16") {
+    } else if (config.pieceSet == "small") {
       font = NOTOSANS_16_EMOJI_FONT_ID;
     }
 

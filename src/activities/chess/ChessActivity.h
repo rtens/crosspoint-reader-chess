@@ -20,6 +20,7 @@ class ChessActivity final : public Activity {
   ChessConfig config;
   ChessStorage storage;
 
+  int movesSinceRefresh = 0;
   ChessState* state = 0;
   string level = "";
 
