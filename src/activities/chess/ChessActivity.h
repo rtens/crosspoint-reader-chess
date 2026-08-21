@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Engine.h>
 #include <Game.h>
 #include <Puzzle.h>
 
@@ -13,11 +14,9 @@ using namespace std;
 
 class ChessActivity final : public Activity {
  public:
-  explicit ChessActivity(GfxRenderer& renderer, MappedInputManager& mappedInput)
-      : Activity("Chess", renderer, mappedInput), game(), puzzle(&game) {}
-
   Game game;
   Puzzle puzzle;
+  Engine engine;
   ChessConfig config;
   ChessStorage storage;
 
@@ -36,6 +35,9 @@ class ChessActivity final : public Activity {
   Move last;
   vector<Move> moves;
   int pov = Game::WHITE;
+
+  explicit ChessActivity(GfxRenderer& renderer, MappedInputManager& mappedInput)
+      : Activity("Chess", renderer, mappedInput), game(), puzzle(&game), engine(&game) {}
 
   void onEnter() override;
   void onExit() override;

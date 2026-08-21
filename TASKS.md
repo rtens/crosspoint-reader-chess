@@ -5,11 +5,6 @@
 
 ## Planned
 
-### v1.0
-
-#### Play against engine
-- with random moves by engine
-
 
 ## Ideas
 
@@ -36,6 +31,12 @@
 
 
 ## Completed
+
+#### Play against engine
+- with random moves by engine
+- start with random color
+- restart the game
+- persist position
 
 #### Solve daily puzzle
 

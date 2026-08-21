@@ -21,9 +21,10 @@ using namespace std;
 #include "activities/network/WifiSelectionActivity.h"
 #include "components/UITheme.h"
 #include "fontIds.h"
-#include "modes/Move.h"
-#include "modes/Otb.h"
-#include "modes/Puzzle.h"
+#include "modes/EngineStates.h"
+#include "modes/MoveStates.h"
+#include "modes/OtbStates.h"
+#include "modes/PuzzleStates.h"
 #include "network/HttpDownloader.h"
 
 void ChessActivity::onEnter() {
@@ -77,23 +78,6 @@ void ChessActivity::loop() {
   }
 }
 
-class ComingSoonState : public ChessState {
- public:
-  ComingSoonState(ChessActivity* activity) : ChessState(activity) {
-    activity->statusText = "";
-    activity->infoText = "Coming soon";
-    activity->btnLeft = "";
-    activity->btnRight = "";
-    activity->btnUp = "";
-    activity->btnDown = "";
-
-    activity->game.start("");
-    activity->move = Move{};
-    activity->last = Move{};
-    activity->moves = {};
-  }
-};
-
 void ChessActivity::onModeSelected(ChessMode mode) {
   LOG_DBG("CHESS", "on Mode Selected %i %s", mode.id, mode.level.c_str());
   level = mode.level;
@@ -114,7 +98,7 @@ void ChessActivity::onModeSelected(ChessMode mode) {
 
   } else if (mode.id == ChessModeSelectionActivity::ENGINE) {
     headerText = "Chess vs " + mode.level;
-    state = new ComingSoonState(this);
+    state = new MoveStartState(this, new EngineRunningState(this));
 
   } else {
     headerText = "Chess";

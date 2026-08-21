@@ -1,8 +1,8 @@
-#include "Otb.h"
+#include "OtbStates.h"
 
 #include "../ChessActivity.h"
 #include "../ChessState.h"
-#include "Move.h"
+#include "MoveStates.h"
 
 ///////////////////// OtbState ////////////////////
 
@@ -29,6 +29,7 @@ OtbStartState::OtbStartState(ChessActivity* activity, bool reset) : OtbMoveState
   activity->pov = activity->game.turn;
   activity->infoText = "Let's go";
 
+  activity->btnLeft = "";
   if (fen == Game::STARTPOS) {
     activity->btnRight = "";
   }
