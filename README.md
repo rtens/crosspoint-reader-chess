@@ -3,9 +3,9 @@
 This is a fork of the excellent [CrossPoint Reader Firmware](https://github.com/crosspoint-reader/crosspoint-reader) with the addition of a chess application for 
 
   - solving mix [lichess puzzles](https://lichess.org/training) of different difficulties
-  - solving the [lichess daily puzzle](https://lichess.org/training/daily) ([planned](TASKS.md#solve-daily-puzzle))
-  - playing against an engine of different strengths ([planned](TASKS.md#play-against-engine))
-  - playing over the board ([planned](TASKS.md#play-over-the-board))
+  - solving the [lichess daily puzzle](https://lichess.org/training/daily)
+  - playing against an engine of different strengths (currently only with random moves by engine)
+  - playing over the board
 
 The app is designed for one-handed operation, using the side buttons for most actions - mostly *down* for changing the selection and *up* for selecting.
 
@@ -17,11 +17,20 @@ Puzzles are downloaded in batches of 50 from the [lichess API](https://lichess.o
 
 ## Configuration
 
-The file `.chess/config.json` can be used to change the piece set. Currently you can choose between three sizes of an emoji font.
+The file `.chess/config.json` can be used to change several parameters.
 
 ```
 {
-  "pieceSet": "emoji32"|"emoji16"|"emoji48"
+  "pieceSet": "default"|"small"|"large",
+  "movesUntilRefresh": 20,
+  "puzzleUrls": {
+    "normal": "https://lichess.org/api/puzzle/batch/mix?nb=50",
+    "easier": "https://lichess.org/api/puzzle/batch/mix?nb=50&difficulty=easier",
+    "harder": "https://lichess.org/api/puzzle/batch/mix?nb=50&difficulty=harder",
+    "easiest": "https://lichess.org/api/puzzle/batch/mix?nb=50&difficulty=easiest",
+    "hardest": "https://lichess.org/api/puzzle/batch/mix?nb=50&difficulty=hardest",
+    "daily": "https://lichess.org/api/puzzle/daily"
+  }
 }
 ```
 
