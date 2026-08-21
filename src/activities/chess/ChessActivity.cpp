@@ -109,7 +109,8 @@ void ChessActivity::onModeSelected(ChessMode mode) {
 
   } else if (mode.id == ChessModeSelectionActivity::DAILY_PUZZLE) {
     headerText = "Chess: Daily Puzzle";
-    state = new ComingSoonState(this);
+    level = "daily";
+    state = new MoveStartState(this, new PuzzleStartState(this));
 
   } else if (mode.id == ChessModeSelectionActivity::ENGINE) {
     headerText = "Chess vs " + mode.level;

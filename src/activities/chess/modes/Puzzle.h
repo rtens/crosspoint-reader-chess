@@ -1,5 +1,6 @@
 #pragma once
 
+#include <ArduinoJson.h>
 #include <Game.h>
 
 #include <functional>
@@ -28,6 +29,8 @@ class PuzzleStartState : public PuzzleRightState {
 
  private:
   bool start();
+  bool startDaily(JsonDocument& puzzles, int index);
+  bool startMix(JsonDocument& puzzle, int index);
   void download(function<void()> then);
   string getDownloadError(string url);
 };

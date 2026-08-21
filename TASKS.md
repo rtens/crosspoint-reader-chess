@@ -7,8 +7,6 @@
 
 ### v1.0
 
-#### Solve daily puzzle
-
 #### Play against engine
 - with random moves by engine
 
@@ -38,6 +36,8 @@
 
 
 ## Completed
+
+#### Solve daily puzzle
 
 #### Show puzzle hint and next move
 

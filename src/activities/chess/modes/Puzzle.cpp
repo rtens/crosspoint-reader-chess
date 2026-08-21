@@ -64,20 +64,26 @@ bool PuzzleStartState::start() {
   }
 
   int index = activity->storage.loadPuzzleIndex(level);
-  LOG_DBG("CHESS", "Index %i", index);
+  LOG_DBG("CHESS", "Index %i for %s", index, level.c_str());
 
-  if (index >= doc["puzzles"].size()) {
-    LOG_DBG("CHESS", "End of batch %s (%i >= %i)", level.c_str(), index, doc["puzzles"].size());
-    activity->infoText = "End of batch";
+  if (level == "daily") {
+    return startDaily(doc, index);
+  } else {
+    return startMix(doc, index);
+  }
+}
+
+bool PuzzleStartState::startDaily(JsonDocument& doc, int index) {
+  if (index > 0) {
+    LOG_DBG("CHESS", "Already solved (%i)", index);
+    activity->infoText = "Already solved";
     return false;
   }
 
-  if (index > 0) activity->btnLeft = "Prev";
-
   LOG_DBG("CHESS", "Parsing puzzzle");
-  JsonObject jsonPuzzle = doc["puzzles"][index];
-  string pgn = jsonPuzzle["game"]["pgn"];
-  JsonArray jsonSolution = jsonPuzzle["puzzle"]["solution"];
+  string pgn = doc["game"]["pgn"];
+  JsonArray jsonSolution = doc["puzzle"]["solution"];
+  string id = doc["puzzle"]["id"];
 
   vector<string> solution;
   for (const char* step : jsonSolution) {
@@ -90,9 +96,42 @@ bool PuzzleStartState::start() {
   LOG_DBG("CHESS", "Puzzle started");
 
   stringstream infos;
-  infos << "Puzzle " << (index + 1) << "/" << doc["puzzles"].size();
+  infos << "Today's Puzzle (" << id << ")";
   activity->infoText = infos.str();
-  LOG_DBG("CHESS", "Done starting puzzle");
+  LOG_DBG("CHESS", "Done starting daily puzzle");
+
+  return true;
+}
+
+bool PuzzleStartState::startMix(JsonDocument& doc, int index) {
+  if (index >= doc["puzzles"].size()) {
+    LOG_DBG("CHESS", "End of batch (%i >= %i)", index, doc["puzzles"].size());
+    activity->infoText = "End of batch";
+    return false;
+  }
+
+  if (index > 0) activity->btnLeft = "Prev";
+
+  LOG_DBG("CHESS", "Parsing puzzzle");
+  JsonObject jsonPuzzle = doc["puzzles"][index];
+  string pgn = jsonPuzzle["game"]["pgn"];
+  JsonArray jsonSolution = jsonPuzzle["puzzle"]["solution"];
+  string id = jsonPuzzle["puzzle"]["id"];
+
+  vector<string> solution;
+  for (const char* step : jsonSolution) {
+    solution.push_back(string(step));
+  }
+
+  LOG_DBG("CHESS", "Start puzzle %s", pgn.c_str());
+  activity->puzzle.start(pgn, solution);
+  activity->pov = activity->game.turn;
+  LOG_DBG("CHESS", "Puzzle started");
+
+  stringstream infos;
+  infos << "Puzzle " << (index + 1) << "/" << doc["puzzles"].size() << " (" << id << ")";
+  activity->infoText = infos.str();
+  LOG_DBG("CHESS", "Done starting puzzle mix");
 
   return true;
 }
@@ -103,7 +142,7 @@ void PuzzleStartState::download(function<void()> then) {
     string level = activity->level;
     activity->storage.savePuzzleIndex(level, 0);
 
-    string puzzlesUrl = activity->config.puzzlesUrl + level;
+    string puzzlesUrl = activity->config.puzzleUrls[level];
 
     LOG_DBG("CHESS", "GET %s", puzzlesUrl.c_str());
     string filename = activity->storage.puzzleFilename(level);
@@ -172,6 +211,7 @@ ChessState* PuzzleRightState::move(Move move) {
   } else if (result == Puzzle::SOLVED) {
     int index = activity->storage.loadPuzzleIndex(activity->level);
     activity->storage.savePuzzleIndex(activity->level, index + 1);
+
     delete this;
     return new PuzzleSolvedState(activity);
 
