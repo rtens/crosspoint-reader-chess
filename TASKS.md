@@ -17,8 +17,6 @@
 #### Win puzzles
 - if solved without undos
 
-#### Redraw before puzzle response
-
 #### Abstract piece symbols
 
 #### Lichess authentication
@@ -34,6 +32,8 @@
 
 
 ## Completed
+
+#### Redraw before puzzle response
 
 #### Play against engine
 - with random moves by engine

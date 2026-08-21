@@ -202,9 +202,13 @@ ChessState* PuzzleRightState::right() {
 
 ChessState* PuzzleRightState::move(Move move) {
   int result = activity->puzzle.propose(move);
-  activity->last = activity->puzzle.last;
+  activity->last = move;
 
   if (result == Puzzle::RIGHT) {
+    activity->requestUpdateAndWait();
+    activity->puzzle.respond();
+    activity->last = activity->puzzle.last;
+
     delete this;
     return new MoveStartState(activity, new PuzzleRightState(activity));
 
@@ -287,6 +291,7 @@ PuzzleSolvedState::PuzzleSolvedState(ChessActivity* activity) : PuzzleState(acti
   activity->infoText = "Good job!";
   activity->btnUp = "Again";
   activity->btnDown = "Next Puzzle";
+  activity->btnRight = "Again";
   activity->btnRight = "Next";
 
   if (activity->game.isOver() == Game::CHECKMATE) {
@@ -306,5 +311,7 @@ ChessState* PuzzleSolvedState::down() {
   delete this;
   return new MoveStartState(activity, new PuzzleStartState(activity));
 }
+
+ChessState* PuzzleSolvedState::left() { return up(); }
 
 ChessState* PuzzleSolvedState::right() { return down(); }

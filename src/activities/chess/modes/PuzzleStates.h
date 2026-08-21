@@ -68,5 +68,6 @@ class PuzzleSolvedState : public PuzzleState {
 
   ChessState* up() override;
   ChessState* down() override;
+  ChessState* left() override;
   ChessState* right() override;
 };
