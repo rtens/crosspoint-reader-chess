@@ -38,9 +38,12 @@ ChessConfig ChessStorage::loadConfig() {
     config.pieceSet = doc["pieceSet"].as<string>();
     LOG_DBG("CHESS", "Config pieceSet: %s", config.pieceSet.c_str());
   }
-  if (doc["puzzlesUrl"].is<string>()) {
-    config.puzzlesUrl = doc["puzzlesUrl"].as<string>();
-    LOG_DBG("CHESS", "Config puzzlesUrl: %s", config.puzzlesUrl.c_str());
+  for (auto puzzleUrl : config.puzzleUrls) {
+    string level = puzzleUrl.first;
+    if (doc["puzzleUrls"][level].is<string>()) {
+      config.puzzleUrls[level] = doc["puzzleUrls"][level].as<string>();
+      LOG_DBG("CHESS", "Config puzzleUrls of %s: %s", level.c_str(), config.puzzleUrls[level].c_str());
+    }
   }
   LOG_DBG("CHESS", "Loaded config");
   return config;
