@@ -16,25 +16,27 @@
 #include <string>
 using namespace std;
 
+#include "ChessStorage.h"
 #include "activities/ActivityResult.h"
 #include "activities/network/WifiSelectionActivity.h"
 #include "components/UITheme.h"
 #include "fontIds.h"
 #include "network/HttpDownloader.h"
 
-vector<vector<string>> modes = {
-    {"Play vs Friend"},
-    {"Play vs Engine", "Random"},
-    {"Solve Puzzles", "normal", "easier", "harder", "easiest", "hardest"},
-    {"Solve Daily Puzzle"},
-};
-
 void ChessModeSelectionActivity::onEnter() {
   Activity::onEnter();
+  readPieceSets();
   state = SELECT_MODE;
   selectedMode = 0;
   selectedLevel = 0;
   requestUpdate();
+}
+
+void ChessModeSelectionActivity::readPieceSets() {
+  ChessStorage storage;
+  for (String s : storage.listPieceSets()) {
+    modes[PIECE_SET].push_back(string(s.substring(0, s.length() - 4).c_str()));
+  }
 }
 
 void ChessModeSelectionActivity::onExit() { Activity::onExit(); }

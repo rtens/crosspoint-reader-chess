@@ -100,8 +100,8 @@ ruby -rdigest -e 'puts [
 ].map{|f| Digest::SHA256.hexdigest(File.read(f)).to_i(16) }.sum % (2 ** 32) - (2 ** 31)'
 ))"
 
-echo "#define NOTOSANS_48_EMOJI_FONT_ID ($(
+echo "#define NOTOSANS_32_EMOJI_FONT_ID ($(
 ruby -rdigest -e 'puts [
-  "./notosans_48_emoji.h",
+  "./notosans_32_emoji.h",
 ].map{|f| Digest::SHA256.hexdigest(File.read(f)).to_i(16) }.sum % (2 ** 32) - (2 ** 31)'
 ))"

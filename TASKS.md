@@ -8,16 +8,14 @@
 
 ## Ideas
 
+#### Download piece sets
+- from github maybe
+
 #### Undo vs engine
 - allow via config
 
-#### Letter piece set
-- black and white letters
-
 #### Win puzzles
 - if solved without undos
-
-#### Abstract piece symbols
 
 #### Lichess authentication
 - [usinga personal token](https://lichess.org/api#description/authentication)
@@ -32,6 +30,9 @@
 
 
 ## Completed
+
+#### Nice piece sets
+- load from file
 
 #### Refresh display after number of moves
 
