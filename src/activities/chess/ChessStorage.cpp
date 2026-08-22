@@ -15,11 +15,32 @@ const string CONFIG_FILE = BASE_PATH + "/config.json";
 const string MODE_FILE = BASE_PATH + "/mode.json";
 const string POSITION_FILE = BASE_PATH + "/position.fen";
 const string INDEX_FILE = BASE_PATH + "/puzzle_index.json";
+const string PIECE_SET_FOLDER = BASE_PATH + "/sets/";
 
 ChessStorage::ChessStorage() {
   if (!Storage.exists(BASE_PATH.c_str())) {
     Storage.mkdir(BASE_PATH.c_str());
   }
+}
+
+void ChessStorage::saveConfig(ChessConfig config) {
+  LOG_DBG("CHESS", "Saving config");
+  JsonDocument doc;
+
+  HalFile reading = Storage.open(CONFIG_FILE.c_str());
+  if (reading) {
+    deserializeJson(doc, reading);
+    reading.close();
+  }
+
+  HalFile file = Storage.open(CONFIG_FILE.c_str(), O_WRITE | O_CREAT | O_TRUNC);
+  if (!file) return;
+
+  doc["pieceSet"] = config.pieceSet;
+  serializeJson(doc, file);
+
+  file.close();
+  LOG_DBG("CHESS", "Saved config");
 }
 
 ChessConfig ChessStorage::loadConfig() {
@@ -174,4 +195,17 @@ bool ChessStorage::loadPuzzles(string level, JsonDocument& doc) {
   }
 
   return true;
+}
+
+vector<String> ChessStorage::listPieceSets() { return Storage.listFiles(PIECE_SET_FOLDER.c_str()); }
+
+uint8_t* ChessStorage::loadPieceSet(string name) {
+  HalFile file = Storage.open((PIECE_SET_FOLDER + name + ".set").c_str());
+  if (!file) return 0;
+
+  auto* buffer = static_cast<uint8_t*>(malloc(file.size()));
+  file.read(buffer, file.size());
+  file.close();
+
+  return buffer;
 }

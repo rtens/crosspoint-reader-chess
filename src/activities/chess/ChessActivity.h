@@ -55,14 +55,16 @@ class ChessActivity final : public Activity {
 
   GfxRenderer::Orientation savedOrientation = GfxRenderer::Orientation::Portrait;
 
+  uint8_t* pieceSet = 0;
+
   int cellSize;
   int boardSize;
   int boardX;
   int boardY;
 
   void onModeSelected(ChessMode mode);
-
   void calculateLayoutParams();
+
   void renderHeader();
   void renderSideButtons();
   void renderSideButton(string text, bool left = true);
@@ -70,11 +72,14 @@ class ChessActivity final : public Activity {
   void renderBoard();
   void renderDarkSquare(int c, int r);
   void renderPieces();
+  void renderDefaultPiece(uint8_t piece, XY sq);
+  void renderPieceFromSet(uint8_t piece, XY sq);
   void renderMove();
   void renderLastMove();
   void renderMoves();
   void renderInfo();
   void renderButtons();
+
   XY squareXY(int c, int r);
   XY squareXY(int i);
 };

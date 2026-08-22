@@ -24,6 +24,7 @@ class ChessStorage {
  public:
   ChessStorage();
 
+  void saveConfig(ChessConfig config);
   ChessConfig loadConfig();
 
   void saveMode(ChessMode mode);
@@ -36,4 +37,7 @@ class ChessStorage {
   int loadPuzzleIndex(string level);
   bool loadPuzzles(string level, JsonDocument& doc);
   string puzzleFilename(string level);
+
+  vector<String> listPieceSets();
+  uint8_t* loadPieceSet(string name);
 };
