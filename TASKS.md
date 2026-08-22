@@ -5,6 +5,9 @@
 
 ## Planned
 
+#### Use FEN to start puzzle
+- show last move
+
 
 ## Ideas
 
