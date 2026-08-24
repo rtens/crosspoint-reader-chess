@@ -8,6 +8,10 @@
 #### Use FEN to start puzzle
 - show last move
 
+#### Remember daily puzzle
+- show if already solved
+- download next on button press
+
 
 ## Ideas
 
