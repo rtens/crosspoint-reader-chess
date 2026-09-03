@@ -15,10 +15,10 @@ class ChessModeSelectionActivity final : public Activity {
   explicit ChessModeSelectionActivity(GfxRenderer& renderer, MappedInputManager& mappedInput)
       : Activity("ChessModeSelection", renderer, mappedInput) {}
 
-  static const int OTB = 0;
-  static const int ENGINE = 1;
-  static const int PUZZLE_MIX = 2;
-  static const int DAILY_PUZZLE = 3;
+  static const int PUZZLE_MIX = 0;
+  static const int DAILY_PUZZLE = 1;
+  static const int ENGINE = 2;
+  static const int OTB = 3;
   static const int PIECE_SET = 4;
 
   void onEnter() override;
@@ -28,10 +28,10 @@ class ChessModeSelectionActivity final : public Activity {
 
  private:
   vector<vector<string>> modes = {
-      {"Play vs Friend"},
-      {"Play vs Engine", "Random"},
       {"Solve Puzzles", "normal", "easier", "harder", "easiest", "hardest"},
       {"Solve Daily Puzzle"},
+      {"Play vs Engine", "Random"},
+      {"Play vs Friend"},
       {"Change Piece Set", "default"},
   };
 

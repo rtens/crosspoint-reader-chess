@@ -115,7 +115,7 @@ enum UIIcon {
   Wifi,
   Hotspot,
   Bookmark,
-  Chess
+  ChessApp
 };
 
 // Default theme implementation (Classic Theme)

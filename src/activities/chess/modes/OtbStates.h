@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Game.h>
+#include <Chess/Game.h>
 
 #include "../ChessState.h"
 
@@ -15,7 +15,7 @@ class OtbMoveState : public OtbState {
  public:
   OtbMoveState(ChessActivity* activity);
 
-  ChessState* move(Move move) override;
+  ChessState* move(Chess::Move move) override;
 };
 
 class OtbStartState : public OtbMoveState {

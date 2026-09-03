@@ -10,4 +10,4 @@ ChessState* ChessState::left() { return this; }
 
 ChessState* ChessState::right() { return this; }
 
-ChessState* ChessState::move(Move move) { return this; }
+ChessState* ChessState::move(Chess::Move move) { return this; }

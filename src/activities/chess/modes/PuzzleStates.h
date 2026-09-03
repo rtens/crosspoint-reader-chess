@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ArduinoJson.h>
-#include <Game.h>
+#include <Chess/Game.h>
 
 #include <functional>
 
@@ -18,7 +18,7 @@ class PuzzleRightState : public PuzzleState {
 
   ChessState* left() override;
   ChessState* right() override;
-  ChessState* move(Move move) override;
+  ChessState* move(Chess::Move move) override;
 };
 
 class PuzzleStartState : public PuzzleRightState {
@@ -31,6 +31,7 @@ class PuzzleStartState : public PuzzleRightState {
   bool start();
   bool startDaily(JsonDocument& puzzles, int index);
   bool startMix(JsonDocument& puzzle, int index);
+  void startPuzzle(const string pgn, vector<Chess::Move> solution);
   void download(function<void()> then);
   string getDownloadError(string url);
 };

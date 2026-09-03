@@ -16,6 +16,8 @@
 #include "components/icons/book.h"
 #include "components/icons/book24.h"
 #include "components/icons/bookmark.h"
+#include "components/icons/chess.h"
+#include "components/icons/chess24.h"
 #include "components/icons/cover.h"
 #include "components/icons/file24.h"
 #include "components/icons/folder.h"
@@ -28,8 +30,6 @@
 #include "components/icons/text24.h"
 #include "components/icons/transfer.h"
 #include "components/icons/wifi.h"
-#include "components/icons/chess.h"
-#include "components/icons/chess24.h"
 #include "fontIds.h"
 
 // Internal constants
@@ -56,7 +56,7 @@ const uint8_t* iconForName(UIIcon icon, int size) {
         return Book24Icon;
       case UIIcon::File:
         return File24Icon;
-      case UIIcon::Chess:
+      case UIIcon::ChessApp:
         return Chess24Icon;
       default:
         return nullptr;
@@ -81,7 +81,7 @@ const uint8_t* iconForName(UIIcon icon, int size) {
         return HotspotIcon;
       case UIIcon::Bookmark:
         return BookmarkIcon;
-      case UIIcon::Chess:
+      case UIIcon::ChessApp:
         return ChessIcon;
       default:
         return nullptr;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Game.h>
+#include <Chess/Game.h>
 
 #include "../ChessState.h"
 
@@ -15,7 +15,7 @@ class EngineRunningState : public EngineState {
  public:
   EngineRunningState(ChessActivity* activity, bool reaset = false);
 
-  ChessState* move(Move move) override;
+  ChessState* move(Chess::Move move) override;
 };
 
 class EngineOverState : public EngineState {

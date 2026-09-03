@@ -1,5 +1,8 @@
 #include "OtbStates.h"
 
+#include <Chess/Parse.h>
+#include <Chess/Print.h>
+
 #include "../ChessActivity.h"
 #include "../ChessState.h"
 #include "MoveStates.h"
@@ -16,21 +19,20 @@ ChessState* OtbState::right() {
 ///////////////////// OtbStartState ////////////////////
 
 OtbStartState::OtbStartState(ChessActivity* activity, bool reset) : OtbMoveState(activity) {
-  string fen = Game::STARTPOS;
+  string fen = Chess::StartingPosition;
   if (!reset) {
     fen = activity->storage.loadPosition();
   }
 
-  activity->game.start(fen);
-  activity->move = Move{};
-  activity->last = Move{};
+  Chess::Parse::fen(fen, activity->board);
+  activity->move = Chess::Move{};
   activity->moves = {};
 
-  activity->pov = activity->game.turn;
+  activity->pov = activity->board.turn;
   activity->infoText = "Let's go";
 
   activity->btnLeft = "";
-  if (fen == Game::STARTPOS) {
+  if (fen == Chess::StartingPosition) {
     activity->btnRight = "";
   }
 }
@@ -39,12 +41,11 @@ OtbStartState::OtbStartState(ChessActivity* activity, bool reset) : OtbMoveState
 
 OtbMoveState::OtbMoveState(ChessActivity* activity) : OtbState(activity) { activity->infoText = ""; }
 
-ChessState* OtbMoveState::move(Move move) {
-  activity->game.make(move);
-  activity->storage.savePosition(activity->game.fen());
-  activity->last = move;
+ChessState* OtbMoveState::move(Chess::Move move) {
+  activity->board.make(move);
+  activity->storage.savePosition(Chess::Print::fen(activity->board));
 
-  if (activity->game.isOver()) {
+  if (activity->game.result() != Chess::Game::Ongoing) {
     delete this;
     return new OtbOverState(activity);
   }
@@ -64,15 +65,15 @@ OtbMoveMadeState::OtbMoveMadeState(ChessActivity* activity) : OtbState(activity)
 }
 
 ChessState* OtbMoveMadeState::up() {
-  activity->game.undo();
-  activity->move = activity->last;
-  activity->last = Move{};
+  activity->move = activity->board.last;
+  activity->board.undo();
+
   delete this;
   return new MoveFromState(activity, new OtbMoveState(activity));
 }
 
 ChessState* OtbMoveMadeState::down() {
-  activity->pov = activity->game.turn;
+  activity->pov = activity->board.turn;
   delete this;
   return new MoveStartState(activity, new OtbMoveState(activity));
 }
@@ -83,9 +84,9 @@ OtbOverState::OtbOverState(ChessActivity* activity) : OtbState(activity) {
   activity->btnUp = "";
   activity->btnDown = "";
 
-  if (activity->game.isOver() == Game::CHECKMATE) {
+  if (activity->game.result() == Chess::Game::Checkmate) {
     activity->statusText = "CHECKMATE!";
-    if (activity->game.turn == Game::WHITE) {
+    if (activity->board.turn == Chess::White) {
       activity->infoText = "Game over. Black won.";
     } else {
       activity->infoText = "Game over. White won.";

@@ -46,7 +46,14 @@ void ChessActivity::onEnter() {
 void ChessActivity::onExit() {
   Activity::onExit();
   if (state) delete state;
+  state = 0;
   if (pieceSet) delete pieceSet;
+  pieceSet = 0;
+  if (puzzle) delete puzzle;
+  puzzle = 0;
+  if (engine) delete engine;
+  engine = 0;
+
   renderer.setOrientation(savedOrientation);
 }
 
@@ -105,6 +112,8 @@ void ChessActivity::onModeSelected(ChessMode mode) {
     level = mode.level;
     headerText = "Chess vs " + mode.level;
     storage.saveMode(mode);
+    if (engine) delete engine;
+    engine = new Chess::Engine(&board);
     if (state) delete state;
     state = new MoveStartState(this, new EngineRunningState(this));
 
@@ -204,8 +213,8 @@ void ChessActivity::renderStatus() {
 void ChessActivity::renderPieces() {
   LOG_DBG("CHESS", "render Pieces");
   for (int i = 0; i < 64; i++) {
-    int piece = game.pieces[i];
-    if (piece == Game::EMPTY) continue;
+    int piece = board.pieces[i];
+    if (piece == Chess::Empty) continue;
 
     XY square = squareXY(i);
 
@@ -217,20 +226,20 @@ void ChessActivity::renderPieces() {
   }
 }
 
-void ChessActivity::renderDefaultPiece(uint8_t piece, XY sq) {
+void ChessActivity::renderDefaultPiece(uint8_t p, XY sq) {
   const char* pieceStr = "?";
-  if (piece == (Game::WHITE | Game::PAWN)) pieceStr = "\u2659";
-  if (piece == (Game::WHITE | Game::KNIGHT)) pieceStr = "\u2658";
-  if (piece == (Game::WHITE | Game::BISHOP)) pieceStr = "\u2657";
-  if (piece == (Game::WHITE | Game::ROOK)) pieceStr = "\u2656";
-  if (piece == (Game::WHITE | Game::QUEEN)) pieceStr = "\u2655";
-  if (piece == (Game::WHITE | Game::KING)) pieceStr = "\u2654";
-  if (piece == (Game::BLACK | Game::PAWN)) pieceStr = "\u265F";
-  if (piece == (Game::BLACK | Game::KNIGHT)) pieceStr = "\u265E";
-  if (piece == (Game::BLACK | Game::BISHOP)) pieceStr = "\u265D";
-  if (piece == (Game::BLACK | Game::ROOK)) pieceStr = "\u265C";
-  if (piece == (Game::BLACK | Game::QUEEN)) pieceStr = "\u265B";
-  if (piece == (Game::BLACK | Game::KING)) pieceStr = "\u265A";
+  if (p == piece(Chess::White, Chess::Pawn)) pieceStr = "\u2659";
+  if (p == piece(Chess::White, Chess::Knight)) pieceStr = "\u2658";
+  if (p == piece(Chess::White, Chess::Bishop)) pieceStr = "\u2657";
+  if (p == piece(Chess::White, Chess::Rook)) pieceStr = "\u2656";
+  if (p == piece(Chess::White, Chess::Queen)) pieceStr = "\u2655";
+  if (p == piece(Chess::White, Chess::King)) pieceStr = "\u2654";
+  if (p == piece(Chess::Black, Chess::Pawn)) pieceStr = "\u265F";
+  if (p == piece(Chess::Black, Chess::Knight)) pieceStr = "\u265E";
+  if (p == piece(Chess::Black, Chess::Bishop)) pieceStr = "\u265D";
+  if (p == piece(Chess::Black, Chess::Rook)) pieceStr = "\u265C";
+  if (p == piece(Chess::Black, Chess::Queen)) pieceStr = "\u265B";
+  if (p == piece(Chess::Black, Chess::King)) pieceStr = "\u265A";
 
   auto font = NOTOSANS_32_EMOJI_FONT_ID;
 
@@ -243,9 +252,9 @@ void ChessActivity::renderDefaultPiece(uint8_t piece, XY sq) {
   renderer.drawText(font, px, py, pieceStr, true);
 }
 
-void ChessActivity::renderPieceFromSet(uint8_t piece, XY sq) {
+void ChessActivity::renderPieceFromSet(uint8_t p, XY sq) {
   if (!pieceSet) {
-    renderDefaultPiece(piece, sq);
+    renderDefaultPiece(p, sq);
     return;
   }
 
@@ -253,18 +262,18 @@ void ChessActivity::renderPieceFromSet(uint8_t piece, XY sq) {
   int d = size * size / 8;
   int offset = 0;
 
-  if (piece == (Game::BLACK | Game::BISHOP)) offset = d * 0;
-  if (piece == (Game::BLACK | Game::KING)) offset = d * 1;
-  if (piece == (Game::BLACK | Game::KNIGHT)) offset = d * 2;
-  if (piece == (Game::BLACK | Game::PAWN)) offset = d * 3;
-  if (piece == (Game::BLACK | Game::QUEEN)) offset = d * 4;
-  if (piece == (Game::BLACK | Game::ROOK)) offset = d * 5;
-  if (piece == (Game::WHITE | Game::BISHOP)) offset = d * 6;
-  if (piece == (Game::WHITE | Game::KING)) offset = d * 7;
-  if (piece == (Game::WHITE | Game::KNIGHT)) offset = d * 8;
-  if (piece == (Game::WHITE | Game::PAWN)) offset = d * 9;
-  if (piece == (Game::WHITE | Game::QUEEN)) offset = d * 10;
-  if (piece == (Game::WHITE | Game::ROOK)) offset = d * 11;
+  if (p == piece(Chess::Black, Chess::Bishop)) offset = d * 0;
+  if (p == piece(Chess::Black, Chess::King)) offset = d * 1;
+  if (p == piece(Chess::Black, Chess::Knight)) offset = d * 2;
+  if (p == piece(Chess::Black, Chess::Pawn)) offset = d * 3;
+  if (p == piece(Chess::Black, Chess::Queen)) offset = d * 4;
+  if (p == piece(Chess::Black, Chess::Rook)) offset = d * 5;
+  if (p == piece(Chess::White, Chess::Bishop)) offset = d * 6;
+  if (p == piece(Chess::White, Chess::King)) offset = d * 7;
+  if (p == piece(Chess::White, Chess::Knight)) offset = d * 8;
+  if (p == piece(Chess::White, Chess::Pawn)) offset = d * 9;
+  if (p == piece(Chess::White, Chess::Queen)) offset = d * 10;
+  if (p == piece(Chess::White, Chess::Rook)) offset = d * 11;
 
   int x = sq.x + (cellSize - size) / 2;
   int y = sq.y + (cellSize - size) / 2;
@@ -309,12 +318,12 @@ void ChessActivity::renderDarkSquare(int c, int r) {
 
 void ChessActivity::renderMove() {
   LOG_DBG("CHESS", "render Move");
-  if (move.from != Game::NOWHERE) {
+  if (move.from != Chess::Nowhere) {
     XY square = squareXY(move.from);
     renderer.drawRect(square.x, square.y, cellSize, cellSize, 4, true);
   }
 
-  if (move.to != Game::NOWHERE) {
+  if (move.to != Chess::Nowhere) {
     XY square = squareXY(move.to);
     renderer.drawRoundedRect(square.x, square.y, cellSize, cellSize, 4, cellSize / 2, true);
   }
@@ -322,10 +331,10 @@ void ChessActivity::renderMove() {
 
 void ChessActivity::renderLastMove() {
   LOG_DBG("CHESS", "render last Move");
-  if (last.from == Game::NOWHERE) return;
+  if (board.last.from == Chess::Nowhere) return;
 
-  XY from = squareXY(last.from);
-  XY to = squareXY(last.to);
+  XY from = squareXY(board.last.from);
+  XY to = squareXY(board.last.to);
   renderer.drawRect(from.x, from.y, cellSize, cellSize, 2, true);
   renderer.drawRoundedRect(to.x, to.y, cellSize, cellSize, 2, cellSize / 2, true);
 }
@@ -341,11 +350,11 @@ void ChessActivity::renderMoves() {
     int cx = square.x + (cellSize - size) / 2;
     int cy = square.y + (cellSize - size) / 2;
 
-    if (game.turn == Game::WHITE) {
-      renderer.fillRoundedRect(cx - s, cy - s, size + s * 2, size + s * 2, (size + s * 2) / 2, Color::Black);
-      renderer.fillRoundedRect(cx, cy, size, size, size / 2, Color::White);
+    if (board.turn == Chess::White) {
+      renderer.fillRoundedRect(cx - s, cy - s, size + s * 2, size + s * 2, (size + s * 2) / 2, ::Color::Black);
+      renderer.fillRoundedRect(cx, cy, size, size, size / 2, ::Color::White);
     } else {
-      renderer.fillRoundedRect(cx, cy, size, size, size / 2, Color::Black);
+      renderer.fillRoundedRect(cx, cy, size, size, size / 2, ::Color::Black);
     }
   }
 }
@@ -368,7 +377,7 @@ ChessActivity::XY ChessActivity::squareXY(int c, int r) {
   int x = boardX + c * cellSize;
   int y = boardY + r * cellSize;
 
-  if (pov == Game::BLACK) {
+  if (pov == Chess::Black) {
     x = right - cellSize - (x - boardX);
     y = bottom - cellSize - (y - boardY);
   }

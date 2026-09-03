@@ -5,7 +5,7 @@ using namespace std;
 
 #include <Arduino.h>
 #include <ArduinoJson.h>
-#include <Game.h>
+#include <Chess/Game.h>
 #include <Logging.h>
 
 #include "ChessModeSelectionActivity.h"
@@ -125,7 +125,7 @@ void ChessStorage::savePosition(string fen) {
 string ChessStorage::loadPosition() {
   LOG_DBG("CHESS", "Loading position");
   HalFile file = Storage.open(POSITION_FILE.c_str());
-  if (!file) return Game::STARTPOS;
+  if (!file) return Chess::StartingPosition;
 
   char buffer[file.size()];
   file.read(buffer, file.size());

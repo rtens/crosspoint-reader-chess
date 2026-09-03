@@ -5,9 +5,6 @@
 
 ## Planned
 
-#### Use FEN to start puzzle
-- show last move
-
 #### Remember daily puzzle
 - show if already solved
 - download next on button press
@@ -37,6 +34,8 @@
 
 
 ## Completed
+
+#### Show last move when puzzle starts
 
 #### Nice piece sets
 - load from file

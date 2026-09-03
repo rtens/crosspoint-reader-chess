@@ -1,8 +1,10 @@
 #pragma once
 
-#include <Engine.h>
-#include <Game.h>
-#include <Puzzle.h>
+#include <Chess/Board.h>
+#include <Chess/Engine.h>
+#include <Chess/Game.h>
+#include <Chess/Piece.h>
+#include <Chess/Puzzle.h>
 
 #include <cstdint>
 using namespace std;
@@ -14,9 +16,11 @@ using namespace std;
 
 class ChessActivity final : public Activity {
  public:
-  Game game;
-  Puzzle puzzle;
-  Engine engine;
+  Chess::Board board;
+  Chess::Game game;
+  Chess::Puzzle* puzzle = 0;
+  Chess::Engine* engine = 0;
+
   ChessConfig config;
   ChessStorage storage;
 
@@ -32,13 +36,12 @@ class ChessActivity final : public Activity {
   string btnUp = "";
   string btnDown = "";
 
-  Move move;
-  Move last;
-  vector<Move> moves;
-  int pov = Game::WHITE;
+  Chess::Move move;
+  vector<Chess::Move> moves;
+  Chess::Color pov = Chess::White;
 
   explicit ChessActivity(GfxRenderer& renderer, MappedInputManager& mappedInput)
-      : Activity("Chess", renderer, mappedInput), game(), puzzle(&game), engine(&game) {}
+      : Activity("Chess", renderer, mappedInput), board(), game(&board) {}
 
   void onEnter() override;
   void onExit() override;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Game.h>
+#include <Chess/Game.h>
 
 class ChessActivity;
 
@@ -12,7 +12,7 @@ class ChessState {
   virtual ChessState* down();
   virtual ChessState* left();
   virtual ChessState* right();
-  virtual ChessState* move(Move move);
+  virtual ChessState* move(Chess::Move move);
 
  protected:
   ChessActivity* activity;
