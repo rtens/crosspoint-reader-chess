@@ -2,7 +2,7 @@
 
 This is a fork of the excellent [CrossPoint Reader Firmware](https://github.com/crosspoint-reader/crosspoint-reader) with the addition of a chess application for 
 
-  - solving mix [lichess puzzles](https://lichess.org/training) of different difficulties
+  - solving [lichess puzzles mix](https://lichess.org/training) of different difficulties
   - solving the [lichess daily puzzle](https://lichess.org/training/daily)
   - playing against an engine of different strengths (currently only with random moves by engine)
   - playing over the board
@@ -13,7 +13,11 @@ It is currently based on the [1.5.0 version of CrossPoint Reader](https://github
 
 ## Puzzles
 
-Puzzles are downloaded in batches of 50 from the [lichess API](https://lichess.org/api#tag/puzzles/GET/api/puzzle/batch/{angle}).
+Puzzles are downloaded in batches of 50 from the [lichess API](https://lichess.org/api#tag/puzzles/GET/api/puzzle/batch/{angle}) by default. The URLs to download puzzles can be changed in the configuration.
+
+## Piece Sets
+
+New piece sets can be installed by uploading a `*.set` file from [here](https://github.com/rtens/crosspoint-reader-chess-piece-sets/tree/main/out) into the `.chess/sets/` on the SD card. Installed piece sets can be selected in the application menu.
 
 ## Configuration
 
@@ -21,7 +25,7 @@ The file `.chess/config.json` can be used to change several parameters.
 
 ```
 {
-  "pieceSet": "default"|"small"|"large",
+  "pieceSet": "default"|string,
   "movesUntilRefresh": 20,
   "puzzleUrls": {
     "normal": "https://lichess.org/api/puzzle/batch/mix?nb=50",
