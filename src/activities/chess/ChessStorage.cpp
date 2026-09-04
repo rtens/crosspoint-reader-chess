@@ -8,7 +8,7 @@ using namespace std;
 #include <Chess/Game.h>
 #include <Logging.h>
 
-#include "ChessModeSelectionActivity.h"
+#include "ChessMenuActivity.h"
 
 const string BASE_PATH = "/.chess";
 const string CONFIG_FILE = BASE_PATH + "/config.json";
@@ -90,7 +90,7 @@ void ChessStorage::saveMode(ChessMode mode) {
 
 ChessMode ChessStorage::loadMode() {
   LOG_DBG("CHESS", "Loading mode");
-  ChessMode mode{ChessModeSelectionActivity::OTB};
+  ChessMode mode{ChessMenuActivity::OTB};
 
   HalFile file = Storage.open(MODE_FILE.c_str());
   if (!file) return mode;
@@ -197,7 +197,11 @@ bool ChessStorage::loadPuzzles(string level, JsonDocument& doc) {
   return true;
 }
 
-vector<String> ChessStorage::listPieceSets() { return Storage.listFiles(PIECE_SET_FOLDER.c_str()); }
+vector<String> ChessStorage::listPieceSets() {
+  auto sets = Storage.listFiles(PIECE_SET_FOLDER.c_str());
+  sort(sets.begin(), sets.end());
+  return sets;
+}
 
 uint8_t* ChessStorage::loadPieceSet(string name) {
   HalFile file = Storage.open((PIECE_SET_FOLDER + name + ".set").c_str());

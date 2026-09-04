@@ -10,7 +10,7 @@
 using namespace std;
 
 #include "../Activity.h"
-#include "ChessModeSelectionActivity.h"
+#include "ChessMenuActivity.h"
 #include "ChessState.h"
 #include "ChessStorage.h"
 
@@ -66,6 +66,7 @@ class ChessActivity final : public Activity {
   int boardY;
 
   void onModeSelected(ChessMode mode);
+  void onPieceSetSelected(string name);
   void calculateLayoutParams();
 
   void renderHeader();

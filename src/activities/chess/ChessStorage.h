@@ -1,11 +1,10 @@
 #pragma once
 
+#include <map>
 #include <string>
 using namespace std;
 
 #include <ArduinoJson.h>
-
-#include "ChessModeSelectionActivity.h"
 
 struct ChessConfig {
   int movesUntilRefresh = 20;
@@ -18,6 +17,11 @@ struct ChessConfig {
       {"hardest", "https://lichess.org/api/puzzle/batch/mix?nb=50&difficulty=hardest"},
       {"daily", "https://lichess.org/api/puzzle/daily"},
   };
+};
+
+struct ChessMode {
+  int id;
+  string level = "";
 };
 
 class ChessStorage {

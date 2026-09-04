@@ -15,7 +15,7 @@
 #include <string>
 using namespace std;
 
-#include "ChessModeSelectionActivity.h"
+#include "ChessMenuActivity.h"
 #include "ChessState.h"
 #include "activities/ActivityResult.h"
 #include "activities/network/WifiSelectionActivity.h"
@@ -31,12 +31,13 @@ void ChessActivity::onEnter() {
   Activity::onEnter();
 
   config = storage.loadConfig();
-  calculateLayoutParams();
-
-  onModeSelected(storage.loadMode());
   if (config.pieceSet != "default") {
     pieceSet = storage.loadPieceSet(config.pieceSet);
   }
+
+  onModeSelected(storage.loadMode());
+
+  calculateLayoutParams();
 
   savedOrientation = renderer.getOrientation();
   renderer.setOrientation(GfxRenderer::Orientation::Portrait);
@@ -62,13 +63,18 @@ void ChessActivity::loop() {
     onGoHome();
 
   } else if (mappedInput.wasReleased(MappedInputManager::Button::Confirm)) {
-    startActivityForResult(make_unique<ChessModeSelectionActivity>(renderer, mappedInput),
-                           [this](const ActivityResult& result) {
-                             if (result.isCancelled) return;
-                             ChessModeResult modeResult = get<ChessModeResult>(result.data);
-                             ChessMode mode{modeResult.id, modeResult.level};
-                             onModeSelected(mode);
-                           });
+    startActivityForResult(make_unique<ChessMenuActivity>(renderer, mappedInput), [this](const ActivityResult& result) {
+      if (result.isCancelled) return;
+      ChessMenuResult menuResult = get<ChessMenuResult>(result.data);
+
+      if (ChessMenuActivity::isMode(menuResult.item)) {
+        ChessMode mode{menuResult.item, menuResult.option};
+        onModeSelected(mode);
+
+      } else if (menuResult.item == ChessMenuActivity::PIECE_SET) {
+        onPieceSetSelected(menuResult.option);
+      }
+    });
 
   } else if (mappedInput.wasReleased(MappedInputManager::Button::Left)) {
     state = state->left();
@@ -90,53 +96,49 @@ void ChessActivity::loop() {
 
 void ChessActivity::onModeSelected(ChessMode mode) {
   LOG_DBG("CHESS", "on Mode Selected %i %s", mode.id, mode.level.c_str());
+  ChessState* modeState;
 
-  if (mode.id == ChessModeSelectionActivity::PUZZLE_MIX) {
+  if (mode.id == ChessMenuActivity::PUZZLE_MIX) {
     level = mode.level;
     headerText = "Chess Puzzles";
     if (level != "normal") {
       headerText = "Chess: " + level + " Puzzles";
     }
-    storage.saveMode(mode);
-    if (state) delete state;
-    state = new MoveStartState(this, new PuzzleStartState(this));
+    modeState = new PuzzleStartState(this);
 
-  } else if (mode.id == ChessModeSelectionActivity::DAILY_PUZZLE) {
+  } else if (mode.id == ChessMenuActivity::DAILY_PUZZLE) {
     level = "daily";
     headerText = "Chess: Daily Puzzle";
-    storage.saveMode(mode);
-    if (state) delete state;
-    state = new MoveStartState(this, new PuzzleStartState(this));
+    modeState = new PuzzleStartState(this);
 
-  } else if (mode.id == ChessModeSelectionActivity::ENGINE) {
+  } else if (mode.id == ChessMenuActivity::ENGINE) {
     level = mode.level;
     headerText = "Chess vs " + mode.level;
-    storage.saveMode(mode);
     if (engine) delete engine;
     engine = new Chess::Engine(&board);
-    if (state) delete state;
-    state = new MoveStartState(this, new EngineRunningState(this));
+    modeState = new EngineRunningState(this);
 
-  } else if (mode.id == ChessModeSelectionActivity::OTB) {
-    level = "";
+  } else {
     headerText = "Chess";
-    storage.saveMode(mode);
-    if (state) delete state;
-    state = new MoveStartState(this, new OtbStartState(this));
-
-  } else if (mode.id == ChessModeSelectionActivity::PIECE_SET) {
-    config.pieceSet = mode.level;
-    storage.saveConfig(config);
-
-    if (pieceSet) delete pieceSet;
-    pieceSet = 0;
-
-    if (config.pieceSet != "default") {
-      pieceSet = storage.loadPieceSet(config.pieceSet);
-    }
+    modeState = new OtbStartState(this);
   }
 
+  storage.saveMode(mode);
+  if (state) delete state;
+  state = new MoveStartState(this, modeState);
   requestUpdate();
+}
+
+void ChessActivity::onPieceSetSelected(string name) {
+  config.pieceSet = name;
+  storage.saveConfig(config);
+
+  if (pieceSet) delete pieceSet;
+  pieceSet = 0;
+
+  if (config.pieceSet != "default") {
+    pieceSet = storage.loadPieceSet(config.pieceSet);
+  }
 }
 
 void ChessActivity::calculateLayoutParams() {
@@ -366,7 +368,7 @@ void ChessActivity::renderInfo() {
 }
 
 void ChessActivity::renderButtons() {
-  const auto labels = mappedInput.mapLabels("Quit", "Mode", btnLeft.c_str(), btnRight.c_str());
+  const auto labels = mappedInput.mapLabels("Quit", "Menu", btnLeft.c_str(), btnRight.c_str());
   GUI.drawButtonHints(renderer, labels.btn1, labels.btn2, labels.btn3, labels.btn4);
 }
 
