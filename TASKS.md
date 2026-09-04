@@ -9,6 +9,8 @@
 - show if already solved
 - download next on button press
 
+#### Cancelling Wifi does not quit
+
 
 ## Ideas
 
