@@ -17,6 +17,7 @@ using namespace std;
 
 #include "ChessMenuActivity.h"
 #include "ChessState.h"
+#include "SilentRestart.h"
 #include "activities/ActivityResult.h"
 #include "activities/network/WifiSelectionActivity.h"
 #include "components/UITheme.h"
@@ -31,13 +32,12 @@ void ChessActivity::onEnter() {
   Activity::onEnter();
 
   config = storage.loadConfig();
+  calculateLayoutParams();
   if (config.pieceSet != "default") {
     pieceSet = storage.loadPieceSet(config.pieceSet);
   }
 
   onModeSelected(storage.loadMode());
-
-  calculateLayoutParams();
 
   savedOrientation = renderer.getOrientation();
   renderer.setOrientation(GfxRenderer::Orientation::Portrait);
@@ -54,6 +54,12 @@ void ChessActivity::onExit() {
   puzzle = 0;
   if (engine) delete engine;
   engine = 0;
+
+  if (WiFi.getMode() != WIFI_MODE_NULL) {
+    WiFi.disconnect(false);
+    delay(30);
+    silentRestart();
+  }
 
   renderer.setOrientation(savedOrientation);
 }

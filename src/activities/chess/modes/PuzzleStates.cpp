@@ -59,7 +59,7 @@ bool PuzzleStartState::start() {
   JsonDocument doc;
   if (!activity->storage.loadPuzzles(level, doc)) {
     LOG_DBG("CHESS", "Could not load puzzles %s", level.c_str());
-    activity->infoText = "No puzzles downloaded";
+    activity->infoText = "Could not load puzzles";
     return false;
   }
 
