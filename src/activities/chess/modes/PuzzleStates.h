@@ -33,7 +33,6 @@ class PuzzleStartState : public PuzzleRightState {
   bool startMix(JsonDocument& puzzle, int index);
   void startPuzzle(const string pgn, vector<Chess::Move> solution);
   void download(function<void()> then);
-  string getDownloadError(string url);
 };
 
 class PuzzleHintState : public PuzzleRightState {

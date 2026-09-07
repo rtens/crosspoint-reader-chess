@@ -65,10 +65,10 @@ void ChessActivity::onExit() {
 }
 
 void ChessActivity::loop() {
-  if (mappedInput.wasReleased(MappedInputManager::Button::Back)) {
+  if (mappedInput.wasPressed(MappedInputManager::Button::Back)) {
     onGoHome();
 
-  } else if (mappedInput.wasReleased(MappedInputManager::Button::Confirm)) {
+  } else if (mappedInput.wasPressed(MappedInputManager::Button::Confirm)) {
     startActivityForResult(make_unique<ChessMenuActivity>(renderer, mappedInput), [this](const ActivityResult& result) {
       if (result.isCancelled) return;
       ChessMenuResult menuResult = get<ChessMenuResult>(result.data);
@@ -82,19 +82,19 @@ void ChessActivity::loop() {
       }
     });
 
-  } else if (mappedInput.wasReleased(MappedInputManager::Button::Left)) {
+  } else if (mappedInput.wasPressed(MappedInputManager::Button::Left)) {
     state = state->left();
     requestUpdate();
 
-  } else if (mappedInput.wasReleased(MappedInputManager::Button::Right)) {
+  } else if (mappedInput.wasPressed(MappedInputManager::Button::Right)) {
     state = state->right();
     requestUpdate();
 
-  } else if (mappedInput.wasReleased(MappedInputManager::Button::Up)) {
+  } else if (mappedInput.wasPressed(MappedInputManager::Button::Up)) {
     state = state->up();
     requestUpdate();
 
-  } else if (mappedInput.wasReleased(MappedInputManager::Button::Down)) {
+  } else if (mappedInput.wasPressed(MappedInputManager::Button::Down)) {
     state = state->down();
     requestUpdate();
   }
@@ -121,7 +121,7 @@ void ChessActivity::onModeSelected(ChessMode mode) {
     level = mode.level;
     headerText = "Chess vs " + mode.level;
     if (engine) delete engine;
-    engine = new Chess::Engine(&board);
+    engine = new Chess::Engine(&board, Chess::Engine::Random);
     modeState = new EngineRunningState(this);
 
   } else {

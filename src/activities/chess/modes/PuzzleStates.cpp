@@ -56,11 +56,15 @@ bool PuzzleStartState::start() {
   string level = activity->level;
   LOG_DBG("CHESS", "Start puzzle %s", level.c_str());
 
+  if (!activity->storage.puzzleFileExists(level)) {
+    return false;
+  }
+
   JsonDocument doc;
   if (!activity->storage.loadPuzzles(level, doc)) {
     LOG_DBG("CHESS", "Could not load puzzles %s", level.c_str());
-    activity->infoText = "Could not load puzzles";
-    return false;
+    activity->infoText = "Could not load puzzles. Try restarting app.";
+    return true;
   }
 
   int index = activity->storage.loadPuzzleIndex(level);
@@ -167,7 +171,7 @@ void PuzzleStartState::download(function<void()> then) {
     }
     if (result == HttpDownloader::HTTP_ERROR) {
       LOG_ERR("CHESS", "Download failed %i", result);
-      activity->infoText = "Download failed: " + getDownloadError(puzzlesUrl);
+      activity->infoText = "Download failed";
       return;
     }
     if (result != HttpDownloader::OK) {
@@ -177,22 +181,6 @@ void PuzzleStartState::download(function<void()> then) {
 
     then();
   });
-}
-
-string PuzzleStartState::getDownloadError(string url) {
-#if defined(FREEINK_NET_WOLFSSL)
-  freeink::SecureHttpClient http;
-  http.setUserAgent("CrossPoint-ESP32-" CROSSPOINT_VERSION);
-  http.setTimeout(60000);
-  http.setInsecure();
-
-  if (!http.begin(url)) return "Bad URL: " + url;
-  const int status = http.GET();
-  if (http.aborted()) return "Aborted";
-  return "Got status " + to_string(status);
-#else
-  return "Unknown error";
-#endif
 }
 
 //////////////// PuzzleRightState //////////////

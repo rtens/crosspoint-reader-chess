@@ -176,6 +176,8 @@ int ChessStorage::loadPuzzleIndex(string level) {
 
 string ChessStorage::puzzleFilename(string level) { return BASE_PATH + "/puzzles_" + level + ".json"; }
 
+bool ChessStorage::puzzleFileExists(string level) { return Storage.exists(puzzleFilename(level).c_str()); }
+
 bool ChessStorage::loadPuzzles(string level, JsonDocument& doc) {
   string filename = puzzleFilename(level);
   LOG_DBG("CHESS", "Reading puzzles %s", filename.c_str());

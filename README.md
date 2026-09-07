@@ -52,7 +52,7 @@ The most important commands are
 - Build: `pio run -e default`
 - Build & Flash: `pio run -t upload`
 - Debug: `python scripts/debugging_monitor.py COM11` (probably with a different COM port)
-- Rebase: `git checkout main; git rebase --onto 1.5.0 1.4.1 main`
+- Rebase: `git rebase --onto $NewTag $OldTag main`
 
 
 # CrossPoint Reader

@@ -44,13 +44,13 @@ void ChessMenuActivity::onExit() { Activity::onExit(); }
 void ChessMenuActivity::loop() {
   auto options = get<2>(items[selectedItem]);
 
-  if (mappedInput.wasReleased(MappedInputManager::Button::Back)) {
+  if (mappedInput.wasPressed(MappedInputManager::Button::Back)) {
     ActivityResult result;
     result.isCancelled = true;
     setResult(std::move(result));
     finish();
 
-  } else if (mappedInput.wasReleased(MappedInputManager::Button::Confirm)) {
+  } else if (mappedInput.wasPressed(MappedInputManager::Button::Confirm)) {
     LOG_DBG("CHESS", "Confirm state %i item %i option %i", state, selectedItem, selectedOption);
 
     if (state == SELECT_OPTION || !options.size()) {
@@ -67,8 +67,8 @@ void ChessMenuActivity::loop() {
       requestUpdate();
     }
 
-  } else if (mappedInput.wasReleased(MappedInputManager::Button::Left) ||
-             mappedInput.wasReleased(MappedInputManager::Button::Up)) {
+  } else if (mappedInput.wasPressed(MappedInputManager::Button::Left) ||
+             mappedInput.wasPressed(MappedInputManager::Button::Up)) {
     if (state == SELECT_ITEM) {
       selectedItem += items.size() - 1;
       selectedItem %= items.size();
@@ -79,8 +79,8 @@ void ChessMenuActivity::loop() {
     }
     requestUpdate();
 
-  } else if (mappedInput.wasReleased(MappedInputManager::Button::Right) ||
-             mappedInput.wasReleased(MappedInputManager::Button::Down)) {
+  } else if (mappedInput.wasPressed(MappedInputManager::Button::Right) ||
+             mappedInput.wasPressed(MappedInputManager::Button::Down)) {
     if (state == SELECT_ITEM) {
       selectedItem++;
       selectedItem %= items.size();

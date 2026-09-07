@@ -40,6 +40,7 @@ class ChessStorage {
   void savePuzzleIndex(string level, int index);
   int loadPuzzleIndex(string level);
   bool loadPuzzles(string level, JsonDocument& doc);
+  bool puzzleFileExists(string level);
   string puzzleFilename(string level);
 
   vector<String> listPieceSets();
