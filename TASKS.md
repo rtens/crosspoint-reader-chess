@@ -5,11 +5,11 @@
 
 ## Planned
 
+#### Upgrade to Crosspoint 1.6.0
+
 #### Remember daily puzzle
 - show if already solved
 - download next on button press
-
-#### Cancelling Wifi does not quit
 
 
 ## Ideas
@@ -19,9 +19,6 @@
 
 #### Undo vs engine
 - allow via config
-
-#### Win puzzles
-- if solved without undos
 
 #### Lichess authentication
 - [usinga personal token](https://lichess.org/api#description/authentication)
@@ -36,6 +33,11 @@
 
 
 ## Completed
+
+#### Win puzzles
+- if solved without undos
+
+#### Cancelling Wifi does not quit
 
 #### Show last move when puzzle starts
 

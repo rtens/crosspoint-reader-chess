@@ -287,11 +287,15 @@ PuzzleCorrectionState::PuzzleCorrectionState(ChessActivity* activity) : PuzzleRi
 ///////////// PuzzleSolvedState ///////////////
 
 PuzzleSolvedState::PuzzleSolvedState(ChessActivity* activity) : PuzzleState(activity) {
-  activity->infoText = "Good job!";
   activity->btnUp = "Again";
   activity->btnDown = "Next Puzzle";
   activity->btnRight = "Again";
   activity->btnRight = "Next";
+
+  activity->infoText = "Good job!";
+  if (activity->puzzle->state == Chess::Puzzle::FirstTry) {
+    activity->infoText = "Excellent =)";
+  }
 
   if (activity->game.result() == Chess::Game::Checkmate) {
     activity->statusText = "CHECKMATE!";
