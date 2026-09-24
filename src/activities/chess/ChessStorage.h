@@ -10,11 +10,11 @@ struct ChessConfig {
   int movesUntilRefresh = 20;
   string pieceSet = "default";
   std::map<string, string> puzzleUrls = {
-      {"normal", "https://lichess.org/api/puzzle/batch/mix?nb=50"},
-      {"easier", "https://lichess.org/api/puzzle/batch/mix?nb=50&difficulty=easier"},
-      {"harder", "https://lichess.org/api/puzzle/batch/mix?nb=50&difficulty=harder"},
-      {"easiest", "https://lichess.org/api/puzzle/batch/mix?nb=50&difficulty=easiest"},
-      {"hardest", "https://lichess.org/api/puzzle/batch/mix?nb=50&difficulty=hardest"},
+      {"normal", "https://lichess.org/api/puzzle/batch/mix?nb=30"},
+      {"easier", "https://lichess.org/api/puzzle/batch/mix?nb=30&difficulty=easier"},
+      {"harder", "https://lichess.org/api/puzzle/batch/mix?nb=30&difficulty=harder"},
+      {"easiest", "https://lichess.org/api/puzzle/batch/mix?nb=30&difficulty=easiest"},
+      {"hardest", "https://lichess.org/api/puzzle/batch/mix?nb=30&difficulty=hardest"},
       {"daily", "https://lichess.org/api/puzzle/daily"},
   };
 };
