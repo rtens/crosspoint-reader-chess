@@ -14,6 +14,9 @@
 
 ## Ideas
 
+#### Load puzzle from local database
+- [source](https://database.lichess.org/#puzzles)
+
 #### Download piece sets
 - from github maybe
 
